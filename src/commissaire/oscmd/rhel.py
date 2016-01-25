@@ -29,7 +29,7 @@ class OSCmd(OSCmdBase):
 
     def reboot(self):
         """
-        Fedora reboot command.
+        RHEL reboot command.
 
         :return: The command to execute as a list
         :rtype: list
@@ -38,7 +38,7 @@ class OSCmd(OSCmdBase):
 
     def upgrade(self):
         """
-        Fedora upgrade command.
+        RHEL upgrade command.
 
         :return: The command to execute as a list
         :rtype: list
