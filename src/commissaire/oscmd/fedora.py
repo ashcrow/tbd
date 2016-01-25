@@ -34,7 +34,7 @@ class OSCmd(OSCmdBase):
         :return: The command to execute as a list
         :rtype: list
         """
-        return ['reboot']
+        return ['systemctl', 'reboot']
 
     def upgrade(self):
         """
