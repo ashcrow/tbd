@@ -32,7 +32,7 @@ class Model:
         """
         Creates a new instance of a Model.
 
-        :param kwargs: All keyword arguments to be create the model.
+        :param kwargs: All keyword arguments to create the model.
         :type kwargs: dict
         :returns: The Model instance.
         :rtype: commissaire.model.Model
@@ -47,7 +47,7 @@ class Model:
 
     def _struct_for_json(self, secure=False):
         """
-        Returns the propler structure for a model to be used in JSON.
+        Returns the proper structure for a model to be used in JSON.
 
         :param secure: If the structure needs to respect _hidden_attributes.
         :type secure: bool
