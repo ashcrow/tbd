@@ -29,7 +29,7 @@ class OSCmd(OSCmdBase):
 
     def restart(self):
         """
-    Fedora restart command.
+        Fedora restart command.
 
         :return: The command to execute as a list
         :rtype: list
