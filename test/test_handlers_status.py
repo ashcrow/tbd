@@ -44,7 +44,7 @@ class Test_Status(TestCase):
         )
 
         # Make sure a Cluster is accepted as expected
-        status_model = status.Status(etcd={}, investigator={}, clusterexec={})
+        status_model = status.Status(etcd={}, investigator={}, clusterexecpool={})
         self.assertEquals(type(str()), type(status_model.to_json()))
 
 
@@ -54,7 +54,7 @@ class Test_StatusResource(TestCase):
     """
     astatus = ('{"etcd": {"status": "OK"}, "investigator": {"status": '
                '"OK", "info": {"size": 1, "in_use": 1, "errors": []}}, '
-               '"clusterexec": {"status": "OK", "info": '
+               '"clusterexecpool": {"status": "OK", "info": '
                '{"size": 1, "in_use": 1, "errors": []}}}')
 
     def before(self):
@@ -74,7 +74,7 @@ class Test_StatusResource(TestCase):
         self.return_value._children = [child]
         self.return_value.leaves = self.return_value._children
 
-        for pool in ('investigator', 'clusterexec'):
+        for pool in ('investigator', 'clusterexecpool'):
             POOLS[pool] = MagicMock(
                 'gevent.pool.Pool',
                 size=1,

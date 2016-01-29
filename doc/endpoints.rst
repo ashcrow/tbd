@@ -364,10 +364,10 @@ Retrieve a the status of the system.
                "errors": [string,...],  // Errors from the pool
            },
        },
-       "clusterexec": {
-           "status": enum(string),      // Status of the cluster pool
+       "clusterexecpool": {
+           "status": enum(string),      // Status of the clusterexec pool
            "info": {
-               "size": int,             // Total size of the cluster pool
+               "size": int,             // Total size of the clusterexec pool
                "in_use": int,           // Amount of the pool in use
                "errors": [string,...],  // Errors from the pool
            }

@@ -30,7 +30,7 @@ class Status(Model):
     """
     _json_type = dict
     _attributes = (
-        'etcd', 'investigator', 'clusterexec')
+        'etcd', 'investigator', 'clusterexecpool')
 
 
 class StatusResource(Resource):
@@ -60,7 +60,7 @@ class StatusResource(Resource):
                     'errors': [],
                 },
             },
-            'clusterexec': {
+            'clusterexecpool': {
                 'status': 'FAILED',
                 'info': {
                     'size': 0,
