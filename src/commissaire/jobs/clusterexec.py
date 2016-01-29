@@ -44,7 +44,7 @@ def clusterexec(cluster_name, command, store):
             "upgraded": [],
             "in_process": [],
             "started_at": datetime.datetime.utcnow().isoformat(),
-            "finished_at": datetime.datetime.min.isoformat(),
+            "finished_at": None,
         }
     elif command == 'restart':
         finished_hosts_key = 'restarted'
@@ -53,7 +53,7 @@ def clusterexec(cluster_name, command, store):
             "restarted": [],
             "in_process": [],
             "started_at": datetime.datetime.utcnow().isoformat(),
-            "finished_at": datetime.datetime.min.isoformat(),
+            "finished_at": None
         }
 
     end_status = 'finished'

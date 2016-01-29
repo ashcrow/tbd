@@ -287,7 +287,7 @@ class ClusterRestartResource(Resource):
             'restarted': [],
             'in_process': [],
             'started_at': datetime.datetime.utcnow().isoformat(),
-            'finished_at': datetime.datetime.min.isoformat()
+            'finished_at': None
         }
         cluster_restart = ClusterRestart(**cluster_restart_default)
         self.store.set(key, cluster_restart.to_json())
@@ -359,7 +359,7 @@ class ClusterUpgradeResource(Resource):
             'upgraded': [],
             'in_process': [],
             'started_at': datetime.datetime.utcnow().isoformat(),
-            'finished_at': datetime.datetime.min.isoformat()
+            'finished_at': None
         }
         cluster_upgrade = ClusterUpgrade(**cluster_upgrade_default)
         self.store.set(key, cluster_upgrade.to_json())
