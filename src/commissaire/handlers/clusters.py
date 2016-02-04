@@ -23,7 +23,8 @@ import json
 
 from commissaire.resource import Resource
 from commissaire.jobs import POOLS, clusterexec
-from commissaire.handlers.models import *
+from commissaire.handlers.models import (
+    Cluster, Clusters, ClusterRestart, ClusterUpgrade, Host)
 
 
 class ClustersResource(Resource):

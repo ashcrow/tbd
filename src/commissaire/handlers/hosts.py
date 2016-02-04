@@ -23,7 +23,7 @@ import json
 
 from commissaire.queues import INVESTIGATE_QUEUE
 from commissaire.resource import Resource
-from commissaire.handlers.models import *
+from commissaire.handlers.models import Cluster, Host, Hosts
 
 
 class HostsResource(Resource):

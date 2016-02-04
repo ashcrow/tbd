@@ -21,7 +21,7 @@ import etcd
 
 from commissaire.jobs import POOLS
 from commissaire.resource import Resource
-from commissaire.handlers.models import *
+from commissaire.handlers.models import Status
 
 
 class StatusResource(Resource):
