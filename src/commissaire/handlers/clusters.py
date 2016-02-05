@@ -194,7 +194,7 @@ class ClusterHostsResource(Resource):
         cluster name, if it exists, or else None.
 
         :param name: Name of a cluster
-        :type req: str
+        :type name: str
         """
         key = '/commissaire/clusters/{0}'.format(name)
         try:
