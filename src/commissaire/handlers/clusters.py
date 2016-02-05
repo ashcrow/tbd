@@ -189,6 +189,13 @@ class ClusterHostsResource(Resource):
     """
 
     def get_cluster_model(self, name):
+        """
+        Returns a Cluster instance from the etcd record for the given
+        cluster name, if it exists, or else None.
+
+        :param name: Name of a cluster
+        :type req: str
+        """
         key = '/commissaire/clusters/{0}'.format(name)
         try:
             etcd_resp = self.store.get(key)
@@ -199,8 +206,7 @@ class ClusterHostsResource(Resource):
             self.logger.info(
                 'Request of non-existent cluster {0} requested.'.format(name))
             return None
-        cluster = Cluster(**json.loads(etcd_resp.value))
-        return cluster
+        return Cluster(**json.loads(etcd_resp.value))
 
     def on_get(self, req, resp, name):
         """
