@@ -31,11 +31,7 @@ class TestHashPassScript(TestCase):
     """
 
     def before(self):
-        self.argv = sys.argv
         sys.argv = ['']
-
-    def after(self):
-        sys.argv = self.argv
 
     def test_hash_pass_script_with_input(self):
         """
@@ -54,10 +50,10 @@ class TestHashPassScript(TestCase):
         """
         Verify giving a password via stdin works with hash_pass_script.
         """
-        sys.argv.append('--stdin')
+        sys.argv += ['--pwfile', '-']
         with contextlib.nested(
-                mock.patch('sys.stdin'),
+                mock.patch('argparse.FileType'),
                 mock.patch('sys.stdout.write')) as (_in, _out):
-            _in.readline.return_value = 'test\n'
+            _in()().readline.return_value = 'test\n'
             hash_pass_script.main()
             self.assertEquals(1, _out.call_count)

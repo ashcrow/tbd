@@ -32,13 +32,13 @@ def main():
     )
     parser.add_argument('-r', '--rounds', type=int, default=12, help='')
     parser.add_argument(
-        '--stdin', action='store_true', default=False,
-        help='Reads password from stdin instead of prompting.')
+        '--pwfile', type=argparse.FileType('r'), required=False,
+        help='Reads password from a file instead of prompting.')
     args = parser.parse_args()
 
     password = None
-    if args.stdin:
-        password = sys.stdin.readline().strip()
+    if args.pwfile:
+        password = args.pwfile.readline().strip()
     else:
         password = getpass.getpass()
 
