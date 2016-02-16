@@ -48,7 +48,7 @@ setup(
     entry_points={
         'console_scripts': [
             'commissaire = commissaire.script:main',
-            'commissaire-hashpass = commissaire.hash_pass_script.py:main',
+            'commissaire-hashpass = commissaire.hash_pass_script:main',
         ],
     }
 )
