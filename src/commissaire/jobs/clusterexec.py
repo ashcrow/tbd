@@ -71,7 +71,7 @@ def clusterexec(cluster_name, command, store):
     if cluster_hosts:
         logger.debug(
             '{0} hosts in cluster {1}'.format(
-            len(cluster_hosts), cluster_name))
+                len(cluster_hosts), cluster_name))
     else:
         logger.warn('No hosts in cluster {1}'.format(cluster_name))
 
