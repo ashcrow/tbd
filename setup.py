@@ -48,6 +48,7 @@ setup(
     entry_points={
         'console_scripts': [
             'commissaire = commissaire.script:main',
+            'commctl = commissaire.client_script:main',
         ],
     }
 )
