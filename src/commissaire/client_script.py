@@ -57,11 +57,12 @@ class Client(object):
 
         :param uri: The full uri to GET.
         :type uri: str
-        :return: None on success, requests.Response of failure.
+        :return: None on success, requests.Response on failure.
         :rtype: None or requests.Response
         """
         resp = self._con.get(uri)
-        if resp.status_code == 200:
+        # Allow any 2xx code
+        if resp.status_code > 199 and resp.status_code < 300:
             ret = resp.json()
             if ret:
                 return ret
@@ -172,7 +173,7 @@ def main():
     Main script entry point.
     """
     import yaml  # Used for output formatting
-    epilog = ('Example: ./cclient')
+    epilog = 'Example: commctl create upgrade -n datacenter1 -u 7.2.2'
 
     parser = argparse.ArgumentParser(epilog=epilog)
     parser.add_argument(
