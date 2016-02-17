@@ -203,4 +203,4 @@ class HostResource(Resource):
                     self.logger.info('Removing {0} from cluster {1}'.format(
                         address, etcd_resp.key.split('/')[-1]))
                     cluster.hostset.remove(address)
-                self.store.set(etcd_resp.key, cluster.to_json(secure=True))
+                    self.store.set(etcd_resp.key, cluster.to_json(secure=True))
