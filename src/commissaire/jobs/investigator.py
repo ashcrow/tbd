@@ -95,11 +95,11 @@ def investigator(queue, config, store, run_once=False):
             logger.info('Facts for {0} retrieved'.format(address))
             logger.debug('Data: {0}'.format(data))
         except:
-            logger.warn('Getting info failed for {0}'.format(address))
+            exc_type, exc_msg, tb = sys.exc_info()
+            logger.warn('Getting info failed for {0}: {1}'.format(
+                address, exc_msg))
             data['status'] = 'failed'
             store.set(key, json.dumps(data))
-            exc_type, exc_msg, tb = sys.exc_info()
-            logger.warn('{0} Exception: {1}'.format(address, exc_msg))
             clean_up_key(key_file)
             if run_once:
                 break
@@ -119,9 +119,9 @@ def investigator(queue, config, store, run_once=False):
             data['status'] = 'inactive'
             store.set(key, json.dumps(data))
         except:
-            logger.warn('Unable to start bootstraping for {0}'.format(address))
             exc_type, exc_msg, tb = sys.exc_info()
-            logger.debug('{0} Exception: {1}'.format(address, exc_msg))
+            logger.warn('Unable to start bootstraping for {0}: {1}'.format(
+                address, exc_msg))
             data['status'] = 'disassociated'
             store.set(key, json.dumps(data))
             clean_up_key(key_file)
@@ -148,11 +148,10 @@ def investigator(queue, config, store, run_once=False):
                     'Checking again in 5 seconds...'.format(address))
                 gevent.sleep(5)
         except:
+            _, exc_msg, _ = sys.exc_info()
             logger.warn(
                 'Unable to finish bootstrap for {0} while associating with '
-                'the container manager'.format(address))
-            exc = sys.exc_info()[0]
-            logger.debug('{0} Exception: {1}'.format(address, exc))
+                'the container manager: {1}'.format(address, exc_msg))
             data['status'] = 'inactive'
 
         store.set(key, json.dumps(data))
