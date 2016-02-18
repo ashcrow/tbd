@@ -233,13 +233,21 @@ class Test_ClusterResource(TestCase):
         # Verify with proper deletion
         body = self.simulate_request(
             '/api/v0/cluster/development', method='DELETE')
+        # Get is called to verify cluster exists
+        self.assertEquals(1, self.datasource.get.call_count)
+        self.assertEquals(1, self.datasource.delete.call_count)
         self.assertEquals(falcon.HTTP_410, self.srmock.status)
         self.assertEquals('{}', body[0])
 
         # Verify when key doesn't exist
-        self.datasource.delete.side_effect = etcd.EtcdKeyNotFound
+        self.datasource.get.reset_mock()
+        self.datasource.delete.reset_mock()
+        self.datasource.get.side_effect = etcd.EtcdKeyNotFound
         body = self.simulate_request(
             '/api/v0/cluster/development', method='DELETE')
+        # Get is called to verify cluster exists
+        self.assertEquals(1, self.datasource.get.call_count)
+        self.assertEquals(0, self.datasource.delete.call_count)
         self.assertEquals(falcon.HTTP_404, self.srmock.status)
         self.assertEquals('{}', body[0])
 
@@ -260,7 +268,7 @@ class Test_ClusterRestart(TestCase):
 
         # Make sure a Cluster creates expected results
         cluster_restart_model = clusters.ClusterRestart(
-            status='inprocess', restarted=[], in_process=[],
+            status='in_process', restarted=[], in_process=[],
             started_at=None, finished_at=None)
 
         self.assertEquals(type(str()), type(cluster_restart_model.to_json()))
@@ -273,6 +281,8 @@ class Test_ClusterRestartResource(TestCase):
 
     arestart = ('{"status": "", "restarted": "", "in_process": "",'
                 ' "started_at": "", "finished_at": ""}')
+
+    etcd_cluster = '{"status": "ok", "hostset": ["10.2.0.2"]}'
 
     def before(self):
         self.api = falcon.API(middleware=[JSONify()])
@@ -306,6 +316,9 @@ class Test_ClusterRestartResource(TestCase):
         Verify creating a cluster restart.
         """
         # Verify with creation
+        self.datasource.get.side_effect = (
+            MagicMock(value=self.etcd_cluster),
+            etcd.EtcdKeyNotFound)
         body = self.simulate_request(
             '/api/v0/cluster/development/restart',
             method='PUT')
@@ -542,7 +555,7 @@ class Test_ClusterUpgrade(TestCase):
 
         # Make sure a Cluster Upgrade creates expected results
         cluster_upgrade_model = clusters.ClusterUpgrade(
-            status='inprocess', upgrade_to='', upgraded=[], in_process=[],
+            status='in_process', upgrade_to='', upgraded=[], in_process=[],
             started_at=None, finished_at=None)
 
         self.assertEquals(type(str()), type(cluster_upgrade_model.to_json()))
@@ -556,6 +569,8 @@ class Test_ClusterUpgradeResource(TestCase):
     aupgrade = ('{"status": "ok", "upgrade_to": "7.0.2", "upgraded": [],'
                 ' "in_process": [], "started_at": "",'
                 ' "finished_at": "0001-01-01T00:00:00"}')
+
+    etcd_cluster = '{"status": "ok", "hostset": ["10.2.0.2"]}'
 
     def before(self):
         self.api = falcon.API(middleware=[JSONify()])
@@ -589,6 +604,10 @@ class Test_ClusterUpgradeResource(TestCase):
         """
         Verify creating a cluster.
         """
+        self.datasource.get.side_effect = (
+            MagicMock(value=self.etcd_cluster),
+            etcd.EtcdKeyNotFound)
+
         # Verify sending no/bad data returns a 400
         for put_data in (None, '{"nothing": "here"}"'):
             body = self.simulate_request(
