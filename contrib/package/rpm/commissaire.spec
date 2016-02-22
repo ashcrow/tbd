@@ -4,24 +4,31 @@ Release:        1%{?dist}
 Summary:        Simple cluster host management
 License:        AGPLv3+
 URL:            http://github.com/projectatomic/commissaire
-Source0:        %{name}-%{version}.tar.gz
+Source0:        https://github.com/projectatomic/%{name}/archive/%{version}.tar.gz
 
-# XXX: Waiting on python2-python-etcd to pass review
-#      https://bugzilla.redhat.com/show_bug.cgi?id=1310796
 BuildArch:      noarch
+
 BuildRequires:  python-devel
-BuildRequires:  python-setuptools
-BuildRequires:  python2-falcon
-BuildRequires:  python2-python-etcd
-BuildRequires:  python-gevent
-BuildRequires:  python-jinja2
-BuildRequires:  python-requests
-BuildRequires:  py-bcrypt
-BuildRequires:  ansible
+
+# For docs
+BuildRequires:  python-sphinx
 
 # For tests
 BuildRequires:  python-coverage
+BuildRequires:  python-mock
+BuildRequires:  python-nose
 BuildRequires:  python-pep8
+
+# XXX: Waiting on python2-python-etcd to pass review
+#      https://bugzilla.redhat.com/show_bug.cgi?id=1310796
+Requires:  python-setuptools
+Requires:  python2-falcon
+Requires:  python2-python-etcd
+Requires:  python-gevent
+Requires:  python-jinja2
+Requires:  python-requests
+Requires:  py-bcrypt
+Requires:  ansible
 
 %description
 Commissaire allows administrators of a Kubernetes, Atomic Enterprise or
@@ -43,13 +50,17 @@ Example tasks include:
 %build
 %py2_build
 
+# Build docs
+%{__python2} setup.py build_sphinx -c doc -b text
+
 
 %install
 %py2_install
 
 
 %check
-%{__python2} setup.py test
+# XXX: Issue with the coverage module.
+#%{__python2} setup.py nosetests
 
 
 %files
