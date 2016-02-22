@@ -66,6 +66,7 @@ Example tasks include:
 %files
 %license COPYING
 %doc README.md
+%doc doc/apidoc/*.rst
 %{_bindir}/commctl
 %{_bindir}/commissaire
 %{_bindir}/commissaire-hashpass
