@@ -26,7 +26,7 @@ Move Source Distribution To RPM Source
 
 .. code-block:: shell
 
-   (virtualenv)$ mv dist/commissaire-*.tar.gz ~/rpmbuild/SOURCES/
+   (virtualenv)$ mv dist/*.tar.gz ~/rpmbuild/SOURCES/
 
 
 Build The Package
