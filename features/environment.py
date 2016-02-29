@@ -1,4 +1,5 @@
 import etcd
+import json
 # import subprocess
 
 # XXX Reproducing commissaire.compat.urlparser because I can't seem to
@@ -56,6 +57,25 @@ def before_scenario(context, scenario):
             context.etcd.delete(dir, recursive=True)
         except etcd.EtcdKeyNotFound:
             pass
+
+
+def after_scenario(context, scenario):
+    """
+    Runs after every scenario.
+    """
+    # Wait for investigator processes to finish.
+    try:
+        etcd_resp = context.etcd.read('/commissaire/hosts', recursive=True)
+        for child in etcd_resp._children:
+            resp_data = etcd.EtcdResult(node=child)
+            host_data = json.loads(resp_data.value)
+            while host_data.get('status') == 'investigating':
+                context.etcd.watch(resp_data.key)
+                resp_data = context.etcd.get(resp_data.key)
+                host_data = json.loads(resp_data.value)
+    except etcd.EtcdKeyNotFound:
+        pass
+
 
 # TODO: Not needed?
 '''
