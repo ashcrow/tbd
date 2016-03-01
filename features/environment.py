@@ -64,12 +64,13 @@ def after_scenario(context, scenario):
     Runs after every scenario.
     """
     # Wait for investigator processes to finish.
+    busy_states = ('investigating', 'bootstrapping')
     try:
         etcd_resp = context.etcd.read('/commissaire/hosts', recursive=True)
         for child in etcd_resp._children:
             resp_data = etcd.EtcdResult(node=child)
             host_data = json.loads(resp_data.value)
-            while host_data.get('status') == 'investigating':
+            while host_data.get('status') in busy_states:
                 context.etcd.watch(resp_data.key)
                 resp_data = context.etcd.get(resp_data.key)
                 host_data = json.loads(resp_data.value)
