@@ -24,7 +24,7 @@
     - name: Configure Kubernetes Node
       template:
         dest: "{{ commissaire_kube_config_config }}"
-        src: "{{  commissaire_kube_config_config_local }}"
+        src: "{{ commissaire_kube_config_config_local }}"
         force: yes
     - name: Add Kubernetes kubeconfig
       template:
