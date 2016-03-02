@@ -48,38 +48,38 @@ Ansible Templates
 Variables are used with jinja2 templates and should always prefix
 **commissaire_**. Here is a current list variables in use as examples:
 
-====================================== ======================================================
-Name                                   Description
-====================================== ======================================================
-commissaire_targets                    Host(s) to target
-commissaire_install_libselinux_python  Command to install libselinux-python
-commissaire_install_flannel            Command to install flannel
-commissaire_flanneld_config_local      Local flannel config file to template to the target(s)
-commissaire_flanneld_config            Remote path to the flannel config
-commissaire_flannel_service            Name of the flannel service
-commissaire_install_docker             Command to install docker
-commissaire_docker_config_local        Local docker config file to template to the target(s)
-commissaire_docker_config              Remote path to the docker config
-commissaire_docker_service             Name of the docker service
-commissaire_install_kube               Command to install kubernetes minion packages
-commissaire_kube_config_config_local   Local kubernetes config file to template to the target(s)
-commissaire_kube_config_config         Remote path to the kubernetes config
-commissaire_kubeconfig_config_local    Local kubeconfig file to template to the target(s)
-commissaire_kubeconfig_config          Remote path to the kubeconfig
-commissaire_kubelet_service            Name of the kubelet service
-commissaire_kubeproxy_service          Name of the kubernetes proxy service
-commissaire_restart_command            Host restart command
-commissaire_upgrade_command            Host upgrade command
-commissaire_bootstrap_ip               The IP address of the host
-commissaire_kubernetes_api_server_host The kubernetes api server host
-commissaire_kubernetes_api_server_port The kubernetes api server port
-commissaire_kubernetes_bearer_token    The bearer token used to contact kubernetes
-commissaire_docker_registry_host       The docker registry host
-commissaire_docker_registry_port       The docker registry port
-commissaire_etcd_host                  The etcd host
-commissaire_etcd_port                  The etcd port
-commissaire_flannel_key                The flannel configuration key
-====================================== ======================================================
+============================================= ======================================================
+Name                                          Description
+============================================= ======================================================
+commissaire_targets                           Host(s) to target
+commissaire_install_libselinux_python         Command to install libselinux-python
+commissaire_install_flannel                   Command to install flannel
+commissaire_flanneld_config_local             Local flannel config file to template to the target(s)
+commissaire_flanneld_config                   Remote path to the flannel config
+commissaire_flannel_service                   Name of the flannel service
+commissaire_install_docker                    Command to install docker
+commissaire_docker_config_local               Local docker config file to template to the target(s)
+commissaire_docker_config                     Remote path to the docker config
+commissaire_docker_service                    Name of the docker service
+commissaire_install_kube                      Command to install kubernetes minion packages
+commissaire_kubernetes_config_local           Local kubernetes config file to template to the target(s)
+commissaire_kubernetes_config                 Remote path to the kubernetes config
+commissaire_kubeconfig_config_local           Local kubeconfig file to template to the target(s)
+commissaire_kubeconfig_config                 Remote path to the kubeconfig
+commissaire_kubelet_service                   Name of the kubelet service
+commissaire_kubeproxy_service                 Name of the kubernetes proxy service
+commissaire_restart_command                   Host restart command
+commissaire_upgrade_command                   Host upgrade command
+commissaire_bootstrap_ip                      The IP address of the host
+commissaire_kubernetes_api_server_host        The kubernetes api server host
+commissaire_kubernetes_api_server_port        The kubernetes api server port
+commissaire_kubernetes_bearer_token           The bearer token used to contact kubernetes
+commissaire_docker_registry_host              The docker registry host
+commissaire_docker_registry_port              The docker registry port
+commissaire_etcd_host                         The etcd host
+commissaire_etcd_port                         The etcd port
+commissaire_flannel_key                       The flannel configuration key
+============================================= ======================================================
 
 Compatibility
 ~~~~~~~~~~~~~

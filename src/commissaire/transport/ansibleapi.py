@@ -331,7 +331,7 @@ class Transport:
                 'commissaire', 'data/templates/flanneld'),
             'commissaire_kubelet_config_local': resource_filename(
                 'commissaire', 'data/templates/kubelet'),
-            'commissaire_kube_config_config_local': resource_filename(
+            'commissaire_kubernetes_config_local': resource_filename(
                 'commissaire', 'data/templates/kube_config'),
             'commissaire_kubeconfig_config_local': resource_filename(
                 'commissaire', 'data/templates/kubeconfig'),
@@ -340,7 +340,7 @@ class Transport:
             'commissaire_docker_config': oscmd.docker_config,
             'commissaire_flanneld_config': oscmd.flanneld_config,
             'commissaire_kubelet_config': oscmd.kubelet_config,
-            'commissaire_kube_config_config': oscmd.kubernetes_config,
+            'commissaire_kubernetes_config': oscmd.kubernetes_config,
             'commissaire_kubeconfig_config': oscmd.kubernetes_kubeconfig,
             'commissaire_install_flannel': " ".join(oscmd.install_flannel()),
             'commissaire_install_docker': " ".join(oscmd.install_docker()),
