@@ -97,8 +97,8 @@ def after_all(context):
     """
     Run after everything finishes.
     """
-    if hasattr(context, 'SERVER_PROCESS'):
-        context.ETCD_PROCESS.kill()
     if hasattr(context, 'ETCD_PROCESS'):
+        context.ETCD_PROCESS.kill()
+    if hasattr(context, 'SERVER_PROCESS'):
         context.SERVER_PROCESS.terminate()
         context.SERVER_PROCESS.wait()
