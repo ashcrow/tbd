@@ -1,10 +1,11 @@
 import etcd
 import json
-# import subprocess
+import platform
+import subprocess
+import time
 
 # XXX Reproducing commissaire.compat.urlparser because I can't seem to
 #     import it from here.
-import platform
 if platform.python_version()[0] == '2':
     from urlparse import urlparse as _urlparse
 else:
@@ -24,9 +25,23 @@ def before_all(context):
     context.ETCD = context.config.userdata.get(
         'etcd', 'http://127.0.0.1:2379')
 
+    # Start etcd up via -D start-etcd=$ANYTHING
+    if context.config.userdata.get('start-etcd', None):
+        context.ETCD_PROCESS = subprocess.Popen('etcd', shell=True)
+        time.sleep(3)
+
     # Connect to the etcd service
     url = urlparse(context.ETCD)
     context.etcd = etcd.Client(host=url.hostname, port=url.port)
+    context.etcd.write('/commissaire/config/kubetoken', 'test')
+
+    # Start the server up via -D start-server=$ANYTHING
+    if context.config.userdata.get('start-server', None):
+        # TODO: add kubernetes URL to options
+        context.SERVER_PROCESS = subprocess.Popen(
+            ['python', 'src/commissaire/script.py',
+             '-e', context.ETCD, '-k', 'http://127.0.0.1:8080'])
+        time.sleep(3)
 
 
 def before_scenario(context, scenario):
@@ -78,21 +93,12 @@ def after_scenario(context, scenario):
         pass
 
 
-# TODO: Not needed?
-'''
-def before_all(context):
-    """
-    Start the server via a subproccess.
-    """
-    context.server_pipe = subprocess.Popen(
-        ['python', 'src/commissaire/script.py',
-         '-e', 'http://127.0.0.1:2379', '-k', 'http://127.0.0.1:8080'],
-        stdout=subprocess.PIPE)
-
-
 def after_all(context):
     """
-    Kill the server at the end.
+    Run after everything finishes.
     """
-    context.server_pipe.kill()
-'''
+    if context.config.userdata.get('start-etcd', None):
+        context.ETCD_PROCESS.kill()
+    if context.config.userdata.get('start-server', None):
+        context.SERVER_PROCESS.terminate()
+        context.SERVER_PROCESS.wait()
