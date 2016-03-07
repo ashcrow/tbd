@@ -1,7 +1,10 @@
 import etcd
 import json
+import os
 import platform
+import random
 import subprocess
+import tempfile
 import time
 
 # XXX Reproducing commissaire.compat.urlparser because I can't seem to
@@ -27,7 +30,21 @@ def before_all(context):
 
     # Start etcd up via -D start-etcd=$ANYTHING
     if context.config.userdata.get('start-etcd', None):
-        context.ETCD_PROCESS = subprocess.Popen('etcd', shell=True)
+        listen_client_port = random.randint(50000, 60000)
+        listen_peer_port = listen_client_port + 1
+        listen_client_url = 'http://127.0.0.1:{0}'.format(listen_client_port)
+        listen_peer_url = 'http://127.0.0.1:{0}'.format(listen_peer_port)
+        context.ETCD_DATA_DIR = tempfile.mkdtemp()
+        context.ETCD = listen_client_url
+
+        context.ETCD_PROCESS = subprocess.Popen(
+            ['etcd', '--name', 'commissaireE2E',
+             '--initial-cluster', 'commissaireE2E={0}'.format(listen_peer_url),
+             '--listen-client-urls', listen_client_url,
+             '--advertise-client-urls', listen_client_url,
+             '--listen-peer-urls', listen_peer_url,
+             '--initial-advertise-peer-urls', listen_peer_url,
+             '--data-dir', context.ETCD_DATA_DIR])
         time.sleep(3)
 
     # Connect to the etcd service
@@ -37,10 +54,13 @@ def before_all(context):
 
     # Start the server up via -D start-server=$ANYTHING
     if context.config.userdata.get('start-server', None):
+        server_port = random.randint(8500, 9000)
+        context.SERVER = 'http://127.0.0.1:{0}'.format(server_port)
         # TODO: add kubernetes URL to options
         context.SERVER_PROCESS = subprocess.Popen(
             ['python', 'src/commissaire/script.py',
-             '-e', context.ETCD, '-k', 'http://127.0.0.1:8080'])
+             '-e', context.ETCD, '-k', 'http://127.0.0.1:8080',
+             '--listen-port', str(server_port)])
         time.sleep(3)
 
 
