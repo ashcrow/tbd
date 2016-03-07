@@ -1,6 +1,5 @@
 import etcd
 import json
-import os
 import platform
 import random
 import subprocess
@@ -37,15 +36,25 @@ def before_all(context):
         context.ETCD_DATA_DIR = tempfile.mkdtemp()
         context.ETCD = listen_client_url
 
-        context.ETCD_PROCESS = subprocess.Popen(
-            ['etcd', '--name', 'commissaireE2E',
-             '--initial-cluster', 'commissaireE2E={0}'.format(listen_peer_url),
-             '--listen-client-urls', listen_client_url,
-             '--advertise-client-urls', listen_client_url,
-             '--listen-peer-urls', listen_peer_url,
-             '--initial-advertise-peer-urls', listen_peer_url,
-             '--data-dir', context.ETCD_DATA_DIR])
-        time.sleep(3)
+        # Try up to 3 times to gain usable random ports
+        for retry in range(1, 4):
+            context.ETCD_PROCESS = subprocess.Popen(
+                ['etcd', '--name', 'commissaireE2E',
+                 '--initial-cluster',
+                 'commissaireE2E={0}'.format(listen_peer_url),
+                 '--listen-client-urls', listen_client_url,
+                 '--advertise-client-urls', listen_client_url,
+                 '--listen-peer-urls', listen_peer_url,
+                 '--initial-advertise-peer-urls', listen_peer_url,
+                 '--data-dir', context.ETCD_DATA_DIR])
+            time.sleep(3)
+            context.ETCD_PROCESS.poll()
+            # If the returncode is not set then etcd is running
+            if context.ETCD_PROCESS.returncode is None:
+                break
+            if retry == 3:
+                print("Could not find a random port to use. Exiting...")
+                raise SystemExit(1)
 
     # Connect to the etcd service
     url = urlparse(context.ETCD)
