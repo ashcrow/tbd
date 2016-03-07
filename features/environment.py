@@ -29,15 +29,16 @@ def before_all(context):
 
     # Start etcd up via -D start-etcd=$ANYTHING
     if context.config.userdata.get('start-etcd', None):
-        listen_client_port = random.randint(50000, 60000)
-        listen_peer_port = listen_client_port + 1
-        listen_client_url = 'http://127.0.0.1:{0}'.format(listen_client_port)
-        listen_peer_url = 'http://127.0.0.1:{0}'.format(listen_peer_port)
-        context.ETCD_DATA_DIR = tempfile.mkdtemp()
-        context.ETCD = listen_client_url
-
-        # Try up to 3 times to gain usable random ports
         for retry in range(1, 4):
+            listen_client_port = random.randint(50000, 60000)
+            listen_peer_port = listen_client_port + 1
+            listen_client_url = 'http://127.0.0.1:{0}'.format(
+                listen_client_port)
+            listen_peer_url = 'http://127.0.0.1:{0}'.format(listen_peer_port)
+            context.ETCD_DATA_DIR = tempfile.mkdtemp()
+            context.ETCD = listen_client_url
+
+            # Try up to 3 times to gain usable random ports
             context.ETCD_PROCESS = subprocess.Popen(
                 ['etcd', '--name', 'commissaireE2E',
                  '--initial-cluster',
@@ -53,7 +54,8 @@ def before_all(context):
             if context.ETCD_PROCESS.returncode is None:
                 break
             if retry == 3:
-                print("Could not find a random port to use. Exiting...")
+                print("Could not find a random port to use for "
+                      "etcd. Exiting...")
                 raise SystemExit(1)
 
     # Connect to the etcd service
@@ -63,14 +65,23 @@ def before_all(context):
 
     # Start the server up via -D start-server=$ANYTHING
     if context.config.userdata.get('start-server', None):
-        server_port = random.randint(8500, 9000)
-        context.SERVER = 'http://127.0.0.1:{0}'.format(server_port)
-        # TODO: add kubernetes URL to options
-        context.SERVER_PROCESS = subprocess.Popen(
-            ['python', 'src/commissaire/script.py',
-             '-e', context.ETCD, '-k', 'http://127.0.0.1:8080',
-             '--listen-port', str(server_port)])
-        time.sleep(3)
+        for retry in range(1, 4):
+            server_port = random.randint(8500, 9000)
+            context.SERVER = 'http://127.0.0.1:{0}'.format(server_port)
+            # TODO: add kubernetes URL to options
+            context.SERVER_PROCESS = subprocess.Popen(
+                ['python', 'src/commissaire/script.py',
+                 '-e', context.ETCD, '-k', 'http://127.0.0.1:8080',
+                 '--listen-port', str(server_port)])
+            time.sleep(3)
+            context.SERVER_PROCESS.poll()
+            # If the returncode is not set then etcd is running
+            if context.SERVER_PROCESS.returncode is None:
+                break
+            if retry == 3:
+                print("Could not find a random port to use for "
+                      "commissaire. Exiting...")
+                raise SystemExit(1)
 
 
 def before_scenario(context, scenario):
