@@ -17,10 +17,43 @@ Abstraction of commands that change across operating systems.
 """
 
 
+class OSCmdBaseMeta(type):
+    """
+    Meta-class for OSCmdBase.
+    """
+
+    def __init__(self, *args):
+        """
+        Gives the class a unique 'extra' command dictionary.
+
+        The 'extra' dictionary keys are strings that identify the purpose
+        of a sequence of commands.  The same keys can be used in multiple
+        subclasses to identify extra commands with a common purpose.
+
+        The 'extra' dictionary values are tuples of command lists.
+
+        For example:
+
+        cls.extra['enablerepos'] = (
+           ['yum-config-manager', '--enable', 'repo1'],
+           ['yum-config-manager', '--enable', 'repo2'])
+
+        Elsewhere, at a point where repos should be enabled:
+
+        for cmd in oscmd.extra.get('enablerepos', ()):
+           # Execute cmd
+        """
+        def __init__(self, *args):
+            super(OSCmdBaseMeta, self).__init__(*args)
+            self.extra = {}
+
+
 class OSCmdBase:
     """
     Operating system command abstraction.
     """
+
+    __metaclass__ = OSCmdBaseMeta
 
     #: The type of Operating System
     os_type = None
