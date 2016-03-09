@@ -56,14 +56,14 @@ def create_app(
     :param store: The etcd client to for storing/retrieving data.
     :type store: etcd.Client
     :param users_paths: Path(s) to where the users.json can be found.
-    :type users_paths: str
+    :type users_paths: str or iterable
     :returns: The commissaire application.
     :rtype: falcon.API
     """
     try:
         http_auth = httpauth.HTTPBasicAuthByEtcd(store)
     except etcd.EtcdKeyNotFound:
-        if type(users_paths) not in (tuple, list):
+        if not hasattr(users_paths, '__iter__'):
             users_paths = [users_paths]
         http_auth = None
         for user_path in users_paths:
