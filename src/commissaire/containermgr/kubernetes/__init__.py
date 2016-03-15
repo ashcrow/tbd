@@ -38,15 +38,15 @@ class ContainerManager(ContainerManagerBase):
         self.host = config.kubernetes['uri'].hostname
         self.port = config.kubernetes['uri'].port
         self.con = requests.Session()
-        if config.kubernetes.get('token', None):
-            token = config.kubernetes['token']
+        token = config.kubernetes.get('token', None)
+        if token:
             self.con.headers["Authorization"] = "Bearer {0}".format(token)
             self.logger.info('Using bearer token')
             self.logger.debug('Bearer token: {0}'.format(token))
-        if (config.kubernetes.get('certificate_path', None) and
-                config.kubernetes.get('certificate_key_path', None)):
-            certificate_path = config.kubernetes['certificate_path']
-            certificate_key_path = config.kubernetes['certificate_key_path']
+
+        certificate_path = config.kubernetes.get('certificate_path')
+        certificate_key_path = config.kubernetes.get('certificate_key_path')
+        if certificate_path and certificate_key_path:
             self.con.cert = (certificate_path, certificate_key_path)
             self.logger.info(
                 'Using client side certificate. Certificate path: {0} '
