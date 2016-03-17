@@ -25,7 +25,7 @@ from . import TestCase
 from mock import MagicMock
 from commissaire.handlers import status
 from commissaire.middleware import JSONify
-from commissaire.jobs import POOLS, PROCS
+from commissaire.jobs import PROCS
 
 
 class Test_Status(TestCase):
@@ -45,7 +45,7 @@ class Test_Status(TestCase):
 
         # Make sure a Cluster is accepted as expected
         status_model = status.Status(
-            etcd={}, investigator={}, clusterexecpool={})
+            etcd={}, investigator={})
         self.assertEquals(type(str()), type(status_model.to_json()))
 
 
@@ -54,9 +54,7 @@ class Test_StatusResource(TestCase):
     Tests for the Status resource.
     """
     astatus = ('{"etcd": {"status": "OK"}, "investigator": {"status": '
-               '"OK", "info": {"size": 1, "in_use": 1, "errors": []}}, '
-               '"clusterexecpool": {"status": "OK", "info": '
-               '{"size": 1, "in_use": 1, "errors": []}}}')
+               '"OK", "info": {"size": 1, "in_use": 1, "errors": []}}}')
 
     def before(self):
         self.api = falcon.API(middleware=[JSONify()])
@@ -74,13 +72,6 @@ class Test_StatusResource(TestCase):
         child = MagicMock(value='')
         self.return_value._children = [child]
         self.return_value.leaves = self.return_value._children
-
-        for pool in ('clusterexecpool', ):
-            POOLS[pool] = MagicMock(
-                'gevent.pool.Pool',
-                size=1,
-                free_count=lambda: 0,
-                greenlets=[])
 
         for proc in ('investigator', ):
             PROCS[proc] = MagicMock(

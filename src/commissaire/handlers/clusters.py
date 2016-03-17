@@ -21,10 +21,15 @@ import falcon
 import etcd
 import json
 
+# import cherrypy
+
+from multiprocessing import Process
+
 from commissaire.resource import Resource
-from commissaire.jobs import POOLS, clusterexec
+from commissaire.jobs.clusterexec import clusterexec
 from commissaire.handlers.models import (
     Cluster, Clusters, ClusterRestart, ClusterUpgrade, Host)
+
 import commissaire.handlers.util as util
 
 
@@ -145,6 +150,8 @@ class ClusterResource(Resource):
             key = util.etcd_cluster_key(name)
             cluster = Cluster(status='ok', hostset=[])
             etcd_resp = self.store.set(key, cluster.to_json(secure=True))
+            # etcd_resp, _ = cherrypy.engine.publish(
+            #    'store-save', key, cluster.to_json(secure=True))[0]
             self.logger.info(
                 'Created cluster {0} per request.'.format(name))
             self.logger.debug('Etcd Response: {0}'.format(etcd_resp))
@@ -394,8 +401,10 @@ class ClusterRestartResource(Resource):
         except etcd.EtcdKeyNotFound:
             pass
 
-        POOLS['clusterexecpool'].spawn(
-            clusterexec.clusterexec, name, 'restart', self.store)
+        # TODO: Move to a poll?
+        p = Process(target=clusterexec, args=(name, 'restart'))
+        p.start()
+
         self.logger.debug('Started restart in clusterexecpool for {0}'.format(
             name))
         cluster_restart_default = {
@@ -505,8 +514,8 @@ class ClusterUpgradeResource(Resource):
             pass
 
         # FIXME: How do I pass 'upgrade_to'?
-        POOLS['clusterexecpool'].spawn(
-            clusterexec.clusterexec, name, 'upgrade', self.store)
+        p = Process(target=clusterexec, args=(name, 'upgrade'))
+        p.start()
         self.logger.debug('Started upgrade in clusterexecpool for {0}'.format(
             name))
         cluster_upgrade_default = {

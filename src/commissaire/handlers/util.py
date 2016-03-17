@@ -15,6 +15,7 @@
 """
 Resource utilities.
 """
+# import cherrypy
 
 import etcd
 import falcon
@@ -159,10 +160,15 @@ def get_cluster_model(store, name):
     :type name: str
     """
     key = etcd_cluster_key(name)
+    # etcd_resp, error = cherrypy.engine.publish('store-get', key)[0]
+    # if error:
+    #     return None
+
     try:
         etcd_resp = store.get(key)
     except etcd.EtcdKeyNotFound:
         return None
+
     cluster = Cluster(**json.loads(etcd_resp.value))
     cluster.etcd = etcd_resp
     return cluster

@@ -16,7 +16,9 @@
 The clusterexec job.
 """
 
+import cherrypy
 import datetime
+import etcd
 import json
 import logging
 import tempfile
@@ -26,7 +28,7 @@ from commissaire.compat.b64 import base64
 from commissaire.oscmd import get_oscmd
 
 
-def clusterexec(cluster_name, command, store):
+def clusterexec(cluster_name, command):
     """
     Remote executes a shell commands across a cluster.
 
@@ -34,6 +36,14 @@ def clusterexec(cluster_name, command, store):
     :type store: etcd.Client
     """
     logger = logging.getLogger('clusterexec')
+    config = cherrypy.config['commissaire.config']
+    store_kwargs = {
+        'host': config.etcd['uri'].hostname,
+        'port': config.etcd['uri'].port,
+        'protocol': config.etcd['uri'].scheme,
+    }
+
+    store = etcd.Client(**store_kwargs)
 
     # TODO: This is a hack and should really be done elsewhere
     if command == 'upgrade':
@@ -79,8 +89,9 @@ def clusterexec(cluster_name, command, store):
     for a_host_dict in store.get('/commissaire/hosts')._children:
         a_host = json.loads(a_host_dict['value'])
         if a_host['address'] not in cluster_hosts:
-            logger.debug('Skipping {0} as it is not in this cluster.'.format(
-                a_host['address']))
+            logger.debug(
+                'Skipping {0} as it is not in this cluster.'.format(
+                    a_host['address']))
             continue  # Move on to the next one
         oscmd = get_oscmd(a_host['os'])
 
@@ -104,7 +115,8 @@ def clusterexec(cluster_name, command, store):
         f.close()
 
         transport = ansibleapi.Transport()
-        result, facts = getattr(transport, command)(
+        exe = getattr(transport, command)
+        result, facts = exe(
             a_host['address'], key_file, oscmd)
         try:
             f.unlink(key_file)

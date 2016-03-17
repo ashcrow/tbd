@@ -19,7 +19,7 @@ Status handlers.
 import falcon
 import etcd
 
-from commissaire.jobs import POOLS, PROCS
+from commissaire.jobs import PROCS
 from commissaire.resource import Resource
 from commissaire.handlers.models import Status
 
@@ -51,14 +51,6 @@ class StatusResource(Resource):
                     'errors': [],
                 },
             },
-            'clusterexecpool': {
-                'status': 'FAILED',
-                'info': {
-                    'size': 0,
-                    'in_use': 0,
-                    'errors': [],
-                }
-            },
         }
         resp.status = falcon.HTTP_503
 
@@ -77,27 +69,6 @@ class StatusResource(Resource):
             kwargs['investigator']['info']['size'] = 1
             kwargs['investigator']['info']['in_use'] = 1
 
-        # Check all the pools
-        def populate_pool_info(pool):
-            # Append the pool information
-            kwargs[pool]['info']['size'] = POOLS[pool].size
-            kwargs[pool]['info']['in_use'] = (
-                POOLS[pool].size - POOLS[pool].free_count())
-
-        map(populate_pool_info, POOLS.keys())
-
-        def populate_exceptions(pool):
-            exceptions = False
-            for thread in POOLS[pool].greenlets:
-                if thread.exception:
-                    exceptions = True
-                    POOLS[pool]['info']['errors'].append(
-                        thread.exception)
-            if not exceptions:
-                kwargs[pool]['status'] = 'OK'
-            return exceptions
-
-        map(populate_exceptions, POOLS.keys())
         self.logger.debug('Status: {0}', kwargs)
 
         resp.status = falcon.HTTP_200

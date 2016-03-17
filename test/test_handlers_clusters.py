@@ -16,7 +16,9 @@
 Test cases for the commissaire.handlers.clusters module.
 """
 
+import contextlib
 import json
+import mock
 
 import etcd
 import falcon
@@ -66,8 +68,6 @@ class Test_ClustersResource(TestCase):
     # XXX: Based on Test_HostsResource
 
     cluster_name = u'development'
-    #acluster = ('{"status": "ok",'
-    #            ' "hosts": {"total": 1, "available": 1, "unavailable": 0}}')
 
     def before(self):
         self.api = falcon.API(middleware=[JSONify()])
@@ -315,18 +315,23 @@ class Test_ClusterRestartResource(TestCase):
         """
         Verify creating a cluster restart.
         """
-        # Verify with creation
-        self.datasource.get.side_effect = (
-            MagicMock(value=self.etcd_cluster),
-            etcd.EtcdKeyNotFound)
-        body = self.simulate_request(
-            '/api/v0/cluster/development/restart',
-            method='PUT')
-        self.assertEquals(falcon.HTTP_201, self.srmock.status)
-        result = json.loads(body[0])
-        self.assertEquals('in_process', result['status'])
-        self.assertEquals([], result['restarted'])
-        self.assertEquals([], result['in_process'])
+        # etcd.Client Patched to avoid the internal connection
+        # Process is patched because we don't want to exec the subprocess
+        # during unittesting
+        with contextlib.nested(
+                mock.patch('etcd.Client'),
+                mock.patch('commissaire.handlers.clusters.Process')):
+            self.datasource.get.side_effect = (
+                MagicMock(value=self.etcd_cluster),
+                etcd.EtcdKeyNotFound)
+            body = self.simulate_request(
+                '/api/v0/cluster/development/restart',
+                method='PUT')
+            self.assertEquals(falcon.HTTP_201, self.srmock.status)
+            result = json.loads(body[0])
+            self.assertEquals('in_process', result['status'])
+            self.assertEquals([], result['restarted'])
+            self.assertEquals([], result['in_process'])
 
 
 class Test_ClusterHostsResource(TestCase):
@@ -606,27 +611,33 @@ class Test_ClusterUpgradeResource(TestCase):
         """
         Verify creating a cluster.
         """
-        self.datasource.get.side_effect = (
-            MagicMock(value=self.etcd_cluster),
-            etcd.EtcdKeyNotFound)
+        # etcd.Client Patched to avoid the internal connection
+        # Process is patched because we don't want to exec the subprocess
+        # during unittesting
+        with contextlib.nested(
+                mock.patch('etcd.Client'),
+                mock.patch('commissaire.handlers.clusters.Process')):
+            self.datasource.get.side_effect = (
+                MagicMock(value=self.etcd_cluster),
+                etcd.EtcdKeyNotFound)
 
-        # Verify sending no/bad data returns a 400
-        for put_data in (None, '{"nothing": "here"}"'):
+            # Verify sending no/bad data returns a 400
+            for put_data in (None, '{"nothing": "here"}"'):
+                body = self.simulate_request(
+                    '/api/v0/cluster/development/upgrade',
+                    method='PUT',
+                    body=put_data)
+                self.assertEquals(falcon.HTTP_400, self.srmock.status)
+                self.assertEquals('{}', body[0])
+
+            # Verify with creation
             body = self.simulate_request(
                 '/api/v0/cluster/development/upgrade',
                 method='PUT',
-                body=put_data)
-            self.assertEquals(falcon.HTTP_400, self.srmock.status)
-            self.assertEquals('{}', body[0])
-
-        # Verify with creation
-        body = self.simulate_request(
-            '/api/v0/cluster/development/upgrade',
-            method='PUT',
-            body='{"upgrade_to": "7.0.2"}')
-        self.assertEquals(falcon.HTTP_201, self.srmock.status)
-        result = json.loads(body[0])
-        self.assertEquals('in_process', result['status'])
-        self.assertEquals('7.0.2', result['upgrade_to'])
-        self.assertEquals([], result['upgraded'])
-        self.assertEquals([], result['in_process'])
+                body='{"upgrade_to": "7.0.2"}')
+            self.assertEquals(falcon.HTTP_201, self.srmock.status)
+            result = json.loads(body[0])
+            self.assertEquals('in_process', result['status'])
+            self.assertEquals('7.0.2', result['upgrade_to'])
+            self.assertEquals([], result['upgraded'])
+            self.assertEquals([], result['in_process'])

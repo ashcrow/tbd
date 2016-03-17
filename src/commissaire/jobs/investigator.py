@@ -24,7 +24,7 @@ import os
 import sys
 import tempfile
 
-from gevent import sleep
+from time import sleep
 
 from commissaire.compat.b64 import base64
 from commissaire.containermgr.kubernetes import KubeContainerManager
@@ -55,7 +55,7 @@ def investigator(queue, config, store_kwargs, run_once=False):
     Investigates new hosts to retrieve and store facts.
 
     :param queue: Queue to pull work from.
-    :type queue: gevent.queue.Queue
+    :type queue: Queue.Queue
     :param config: Configuration information.
     :type config: commissaire.config.Config
     :param store_kwargs: Keyword arguments to use when creating an etcd.Client
@@ -67,10 +67,10 @@ def investigator(queue, config, store_kwargs, run_once=False):
     # Create our own client for use in this process
     store = etcd.Client(**store_kwargs)
 
-    transport = ansibleapi.Transport()
     while True:
         # Statuses follow:
         # http://commissaire.readthedocs.org/en/latest/enums.html#host-statuses
+        transport = ansibleapi.Transport()
         to_investigate, ssh_priv_key = queue.get()
         address = to_investigate['address']
         logger.info('{0} is now in investigating.'.format(address))

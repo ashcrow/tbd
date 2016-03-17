@@ -16,12 +16,20 @@
 Test cases for the commissaire.jobs.clusterexec module.
 """
 
+import contextlib
 import etcd
 import mock
+import cherrypy
 
 from . import TestCase
 from commissaire.jobs.clusterexec import clusterexec
+from commissaire.config import Config
+from commissaire.compat.urlparser import urlparse
 from mock import MagicMock
+
+
+cherrypy.config['commissaire.config'] = Config(
+    etcd={'uri': urlparse('http://127.0.0.1:2379')})
 
 
 class Test_JobsClusterExec(TestCase):
@@ -42,20 +50,22 @@ class Test_JobsClusterExec(TestCase):
         Verify the clusterexec.
         """
         for cmd in ('restart', 'upgrade'):
-            with mock.patch('commissaire.transport.ansibleapi.Transport') as _tp:
+            with contextlib.nested(
+                    mock.patch('commissaire.transport.ansibleapi.Transport'),
+                    mock.patch('etcd.Client')) as (_tp, _store):
                 getattr(_tp(), cmd).return_value = (0, {})
 
                 child = {'value': self.etcd_host}
                 return_value = MagicMock(_children=[child])
                 return_value.leaves = return_value._children
 
-                store = etcd.Client()
+                store = _store()
                 store.get = MagicMock('get')
                 store.get.side_effect = (
                     MagicMock(value=self.etcd_cluster), return_value)
                 store.set = MagicMock('set')
 
-                clusterexec('default', cmd, store)
+                clusterexec('default', cmd)
 
                 # One for the cluster, one for the host
                 self.assertEquals(2, store.get.call_count)
@@ -67,20 +77,22 @@ class Test_JobsClusterExec(TestCase):
         Verify the clusterexec will stop on first failure.
         """
         for cmd in ('restart', 'upgrade'):
-            with mock.patch('commissaire.transport.ansibleapi.Transport') as _tp:
+            with contextlib.nested(
+                    mock.patch('commissaire.transport.ansibleapi.Transport'),
+                    mock.patch('etcd.Client')) as (_tp, _store):
                 getattr(_tp(), cmd).return_value = (1, {})
 
                 child = {'value': self.etcd_host}
                 return_value = MagicMock(_children=[child])
                 return_value.leaves = return_value._children
 
-                store = etcd.Client()
+                store = _store()
                 store.get = MagicMock('get')
                 store.get.side_effect = (
                     MagicMock(value=self.etcd_cluster), return_value)
                 store.set = MagicMock('set')
 
-                clusterexec('default', cmd, store)
+                clusterexec('default', cmd)
 
                 # One for the cluster, one for the host
                 self.assertEquals(2, store.get.call_count)
