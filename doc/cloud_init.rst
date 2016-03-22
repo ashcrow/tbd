@@ -1,3 +1,5 @@
+.. _cloud_init:
+
 Cloud-Init Integration
 ======================
 
