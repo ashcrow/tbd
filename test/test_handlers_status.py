@@ -17,6 +17,7 @@ Test cases for the commissaire.handlers.status module.
 """
 
 import json
+import mock
 
 import etcd
 import falcon
@@ -69,20 +70,20 @@ class Test_StatusResource(TestCase):
         """
         Verify retrieving Status.
         """
-        child = MagicMock(value='')
-        self.return_value._children = [child]
-        self.return_value.leaves = self.return_value._children
+        with mock.patch('cherrypy.engine.publish') as _publish:
+            child = MagicMock(value='')
+            self.return_value._children = [child]
+            self.return_value.leaves = self.return_value._children
+            _publish.return_value = [[self.return_value, None]]
 
-        for proc in ('investigator', ):
-            PROCS[proc] = MagicMock(
-                'multiprocessing.Process',
-                is_alive=MagicMock(return_value=True),
-            )
+            for proc in ('investigator', ):
+                PROCS[proc] = MagicMock(
+                    'multiprocessing.Process',
+                    is_alive=MagicMock(return_value=True),
+                )
 
-        body = self.simulate_request('/api/v0/status')
-        # datasource's get should have been called once
-        self.assertEquals(1, self.datasource.get.call_count)
-        self.assertEqual(self.srmock.status, falcon.HTTP_200)
-        self.assertEqual(
-            json.loads(self.astatus),
-            json.loads(body[0]))
+            body = self.simulate_request('/api/v0/status')
+            self.assertEqual(self.srmock.status, falcon.HTTP_200)
+            self.assertEqual(
+                json.loads(self.astatus),
+                json.loads(body[0]))

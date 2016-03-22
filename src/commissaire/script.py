@@ -55,7 +55,7 @@ def create_app(
     :rtype: falcon.API
     """
     try:
-        http_auth = httpauth.HTTPBasicAuthByEtcd(store)
+        http_auth = httpauth.HTTPBasicAuthByEtcd()
     except etcd.EtcdKeyNotFound:
         if not hasattr(users_paths, '__iter__'):
             users_paths = [users_paths]
@@ -230,11 +230,6 @@ def main():  # pragma: no cover
     except etcd.EtcdKeyNotFound:
         logging.debug('No kubernetes client side certificate set.')
 
-    # Start processes
-    PROCS['investigator'] = Process(
-        target=investigator, args=(INVESTIGATE_QUEUE, config, store_kwargs))
-    PROCS['investigator'].start()
-
     # Add our config instance to the cherrypy global config so we can use it's
     # values elsewhere
     # TODO: Technically this should be in the cherrypy.request.app.config
@@ -243,15 +238,13 @@ def main():  # pragma: no cover
 
     logging.debug('Config: {0}'.format(config))
 
-    app = create_app(ds)
-
     cherrypy.server.unsubscribe()
     # Disable autoreloading and use our logger
     cherrypy.config.update({'log.screen': False,
                             'log.access_file': '',
                             'log.error_file': '',
                             'engine.autoreload.on': False})
-    cherrypy.tree.graft(app, "/")
+
     server = cherrypy._cpserver.Server()
     server.socket_host = interface
     server.socket_port = int(port)
@@ -266,13 +259,23 @@ def main():  # pragma: no cover
         server.ssl_certificate = tls_certfile
         server.ssl_private_key = tls_keyfile
         logging.info('Commissaire server TLS will be enabled.')
-
     server.subscribe()
 
     # Add our plugins
     CherryPyStorePlugin(cherrypy.engine, store_kwargs).subscribe()
-
+    # NOTE: Anything that requires etcd should start AFTER
+    # the engine is started
     cherrypy.engine.start()
+
+    # Start processes
+    PROCS['investigator'] = Process(
+        target=investigator, args=(INVESTIGATE_QUEUE, config))
+    PROCS['investigator'].start()
+
+    # Make and mount the app
+    app = create_app(ds)
+    cherrypy.tree.graft(app, "/")
+    # Server forever
     cherrypy.engine.block()
 
     PROCS['investigator'].terminate()

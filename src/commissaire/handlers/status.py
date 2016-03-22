@@ -16,8 +16,8 @@
 Status handlers.
 """
 
+import cherrypy
 import falcon
-import etcd
 
 from commissaire.jobs import PROCS
 from commissaire.resource import Resource
@@ -55,10 +55,10 @@ class StatusResource(Resource):
         resp.status = falcon.HTTP_503
 
         # Check etcd connection
-        try:
-            self.store.get('/')
+        root_dir, error = cherrypy.engine.publish('store-get', '/')[0]
+        if not error:
             kwargs['etcd']['status'] = 'OK'
-        except etcd.EtcdKeyNotFound:
+        else:
             self.logger.debug('There is no root directory in etcd...')
             kwargs['etcd']['status'] = 'FAILED'
 

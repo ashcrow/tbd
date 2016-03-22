@@ -66,7 +66,7 @@ class CherryPyStorePlugin(plugins.SimplePlugin):
         self.bus.unsubscribe("store-save", self.store_save)
         self.bus.unsubscribe("store-get", self.store_get)
 
-    def store_save(self, key, json_entity):
+    def store_save(self, key, json_entity, **kwargs):
         """
         Saves json to the store.
 
@@ -74,12 +74,14 @@ class CherryPyStorePlugin(plugins.SimplePlugin):
         :type key: str
         :param json_entity: The json data to save.
         :type json_entity: str
+        :param kwargs: All other keyword-args to pass to client
+        :type kwargs: dict
         :returns: The stores response and any errors that may have occured
         :rtype: tuple(etcd.EtcdResult, Exception)
         """
         try:
             store = self._get_store()
-            return (store.set(key, json_entity), None)
+            return (store.write(key, json_entity, **kwargs), None)
         except:
             _, exc, _ = sys.exc_info()
             return ([], exc)

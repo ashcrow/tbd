@@ -100,10 +100,10 @@ class Test_CherryPyStorePlugin(TestCase):
         with mock.patch('etcd.Client') as _store:
             store = _store()
             expected_result = mock.MagicMock('etcd.EtcdResult')
-            store.set.return_value = expected_result
+            store.write.return_value = expected_result
             result = self.plugin.store_save(key, data)
             # The store should be called to set the data
-            store.set.assert_called_once_with(key, data)
+            store.write.assert_called_once_with(key, data)
             # The result should be a tuple
             self.assertEquals((expected_result, None), result)
 
@@ -116,10 +116,10 @@ class Test_CherryPyStorePlugin(TestCase):
         with mock.patch('etcd.Client') as _store:
             store = _store()
             expected_result = Exception()
-            store.set.side_effect = expected_result
+            store.write.side_effect = expected_result
             result = self.plugin.store_save(key, data)
             # The store should be called to set the data
-            store.set.assert_called_once_with(key, data)
+            store.write.assert_called_once_with(key, data)
             # The result should be a tuple
             self.assertEquals(([], expected_result), result)
 
