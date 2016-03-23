@@ -18,7 +18,6 @@ The investigator job.
 
 import cherrypy
 import datetime
-import etcd
 import json
 import logging
 import os

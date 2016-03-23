@@ -69,9 +69,15 @@ def clusterexec(cluster_name, command):
         json.dumps(cluster_status))[0]
 
     # Collect all host addresses in the cluster
-    etcd_resp, _ = cherrypy.engine.publish(
+    etcd_resp, error = cherrypy.engine.publish(
         'store-get', '/commissaire/clusters/{0}'.format(cluster_name))[0]
-    print etcd_resp.value
+
+    if error:
+        logger.warn(
+            'Unable to continue for {0} due to '
+            '{1}: {2}. Returning...'.format(cluster_name, type(error), error))
+        return
+
     cluster_hosts = set(json.loads(etcd_resp.value).get('hostset', []))
     if cluster_hosts:
         logger.debug(
