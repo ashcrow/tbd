@@ -36,14 +36,6 @@ def clusterexec(cluster_name, command):
     :type store: etcd.Client
     """
     logger = logging.getLogger('clusterexec')
-    config = cherrypy.config['commissaire.config']
-    store_kwargs = {
-        'host': config.etcd['uri'].hostname,
-        'port': config.etcd['uri'].port,
-        'protocol': config.etcd['uri'].scheme,
-    }
-
-    store = etcd.Client(**store_kwargs)
 
     # TODO: This is a hack and should really be done elsewhere
     if command == 'upgrade':
@@ -71,12 +63,15 @@ def clusterexec(cluster_name, command):
     # Set the initial status in the store
     logger.info('Setting initial status.')
     logger.debug('Status={0}'.format(cluster_status))
-    store.set(
+    cherrypy.engine.publish(
+        'store-save',
         '/commissaire/cluster/{0}/{1}'.format(cluster_name, command),
-        json.dumps(cluster_status))
+        json.dumps(cluster_status))[0]
 
     # Collect all host addresses in the cluster
-    etcd_resp = store.get('/commissaire/clusters/{0}'.format(cluster_name))
+    etcd_resp, _ = cherrypy.engine.publish(
+        'store-get', '/commissaire/clusters/{0}'.format(cluster_name))[0]
+    print etcd_resp.value
     cluster_hosts = set(json.loads(etcd_resp.value).get('hostset', []))
     if cluster_hosts:
         logger.debug(
@@ -86,7 +81,14 @@ def clusterexec(cluster_name, command):
         logger.warn('No hosts in cluster {0}'.format(cluster_name))
 
     # TODO: Find better way to do this
-    for a_host_dict in store.get('/commissaire/hosts')._children:
+    a_hosts, error = cherrypy.engine.publish(
+        'store-get', '/commissaire/hosts')[0]
+    if error:
+        logger.warn(
+            'No hosts in the cluster. Error: {0}. Exiting clusterexec'.format(
+                error))
+        return
+    for a_host_dict in a_hosts._children:
         a_host = json.loads(a_host_dict['value'])
         if a_host['address'] not in cluster_hosts:
             logger.debug(
@@ -100,7 +102,8 @@ def clusterexec(cluster_name, command):
             command_list, a_host['address']))
 
         cluster_status['in_process'].append(a_host['address'])
-        store.set(
+        cherrypy.engine.publish(
+            'store-set',
             '/commissaire/cluster/{0}/{1}'.format(cluster_name, command),
             json.dumps(cluster_status))
 
@@ -139,17 +142,20 @@ def clusterexec(cluster_name, command):
             logger.warn('Host {0} was not in_process for {1} {2}'.format(
                 a_host['address'], command, cluster_name))
 
-        store.set(
+        cherrypy.engine.publish(
+            'store-set',
             '/commissaire/cluster/{0}/{1}'.format(cluster_name, command),
-            json.dumps(cluster_status))
+            json.dumps(cluster_status))[0]
         logger.info('Finished executing {0} for {1} in {2}'.format(
             command, a_host['address'], cluster_name))
 
     # Final set of command result
     cluster_status['finished_at'] = datetime.datetime.utcnow().isoformat()
     cluster_status['status'] = end_status
-    store.set(
+
+    cherrypy.engine.publish(
+        'store-set',
         '/commissaire/cluster/{0}/{1}'.format(cluster_name, command),
-        json.dumps(cluster_status))
+        json.dumps(cluster_status))[0]
 
     logger.info('Clusterexec stopping')

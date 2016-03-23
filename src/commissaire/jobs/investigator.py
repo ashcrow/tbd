@@ -83,7 +83,14 @@ def investigator(queue, config, run_once=False):
         f.close()
 
         key = '/commissaire/hosts/{0}'.format(address)
-        etcd_resp, _ = cherrypy.engine.publish('store-get', key)[0]
+        etcd_resp, error = cherrypy.engine.publish('store-get', key)[0]
+        if error:
+            logger.warn(
+                'Unable to continue for {0} due to '
+                '{1}: {2}. Returning...'.format(address, type(error), error))
+            clean_up_key(key_file)
+            continue
+
         data = json.loads(etcd_resp.value)
 
         try:

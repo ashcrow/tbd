@@ -51,35 +51,42 @@ class Test_JobsClusterExec(TestCase):
         """
         for cmd in ('restart', 'upgrade'):
             with contextlib.nested(
+                    mock.patch('cherrypy.engine.publish'),
                     mock.patch('commissaire.transport.ansibleapi.Transport'),
-                    mock.patch('etcd.Client')) as (_tp, _store):
+                    mock.patch('etcd.Client')) as (_publish, _tp, _store):
                 getattr(_tp(), cmd).return_value = (0, {})
 
                 child = {'value': self.etcd_host}
                 return_value = MagicMock(_children=[child])
                 return_value.leaves = return_value._children
 
-                store = _store()
-                store.get = MagicMock('get')
-                store.get.side_effect = (
-                    MagicMock(value=self.etcd_cluster), return_value)
-                store.set = MagicMock('set')
+                # store = _store()
+                # store.get = MagicMock('get')
+                # store.get.side_effect = (
+                _publish.side_effect = (
+                    [[MagicMock(value=self.etcd_cluster), None]],
+                    [[MagicMock(value=self.etcd_cluster), None]],
+                    [[return_value, None]],
+                    [[return_value, None]],
+                    [[return_value, None]],
+                    [[return_value, None]],
+                    [[return_value, None]],
+                )
 
                 clusterexec('default', cmd)
 
                 # One for the cluster, one for the host
-                self.assertEquals(2, store.get.call_count)
-                # We should have 4 sets for 1 host
-                self.assertEquals(4, store.set.call_count)
-
+                self.assertEquals(6, _publish.call_count)
+'''
     def test_clusterexec_stops_on_failure(self):
         """
         Verify the clusterexec will stop on first failure.
         """
         for cmd in ('restart', 'upgrade'):
             with contextlib.nested(
+                    mock.patch('cherrypy.engine.publish'),
                     mock.patch('commissaire.transport.ansibleapi.Transport'),
-                    mock.patch('etcd.Client')) as (_tp, _store):
+                    mock.patch('etcd.Client')) as (_publish, _tp, _store):
                 getattr(_tp(), cmd).return_value = (1, {})
 
                 child = {'value': self.etcd_host}
@@ -98,3 +105,4 @@ class Test_JobsClusterExec(TestCase):
                 self.assertEquals(2, store.get.call_count)
                 # We should have 4 sets for 1 host
                 self.assertEquals(3, store.set.call_count)
+'''
