@@ -181,6 +181,8 @@ class Client(object):
         """
         Attempts to list all hosts or hosts in particular cluster.
 
+        :param name: The name of the cluster (optional)
+        :type name: str or None
         :param kwargs: Any other keyword arguments
         :type kwargs: dict
         """
