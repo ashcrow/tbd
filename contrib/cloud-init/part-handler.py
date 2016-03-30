@@ -131,9 +131,9 @@ def handle_part(data, ctype, filename, payload):
         try:
             authorized_keys = '/root/.ssh/authorized_keys'
             with open(keyfile + '.pub') as inpf:
-                with open(authorized_keys, 'a') as outf:
+                with os.open(authorized_keys, os.O_APPEND,
+                             stat.S_IRUSR | stat.S_IWUSR)) as outf:
                     outf.writelines(inpf.readlines())
-            os.chmod(authorized_keys, stat.S_IRUSR | stat.S_IWUSR)
         except Exception as ex:
             print(str(ex), file=sys.stderr)
             raise
