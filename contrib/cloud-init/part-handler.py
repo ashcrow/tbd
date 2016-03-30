@@ -131,8 +131,11 @@ def handle_part(data, ctype, filename, payload):
         try:
             authorized_keys = '/root/.ssh/authorized_keys'
             with open(keyfile + '.pub') as inpf:
-                with os.open(authorized_keys, os.O_APPEND,
-                             stat.S_IRUSR | stat.S_IWUSR)) as outf:
+                # If creating a new file, set mode to 0600.
+                fd = os.open(authorized_keys,
+                             os.O_WRONLY | os.O_APPEND | os.O_CREAT,
+                             stat.S_IRUSR | stat.S_IWUSR)
+                with os.fdopen(fd, 'a') as outf:
                     outf.writelines(inpf.readlines())
         except Exception as ex:
             print(str(ex), file=sys.stderr)
