@@ -1,6 +1,6 @@
 .. note::
 
-   For more information as to why this is necissary see the `flannel documentation <https://coreos.com/flannel/docs/latest/flannel-config.html>`_ or the `Project Atomic Getting Started Guide <http://www.projectatomic.io/docs/gettingstarted/>`_
+   For more information as to why this is necessary see the `flannel documentation <https://coreos.com/flannel/docs/latest/flannel-config.html>`_ or the `Project Atomic Getting Started Guide <http://www.projectatomic.io/docs/gettingstarted/>`_
 
 .. code-block:: shell
 
