@@ -166,7 +166,7 @@ def main():  # pragma: no cover
         'protocol': config.etcd['uri'].scheme,
     }
 
-    if args.etcd_ca_path:
+    if bool(args.etcd_ca_path):
         config.etcd['certificate_ca_path'] = args.etcd_ca_path
 
     # We need all args to use a client side cert for etcd
