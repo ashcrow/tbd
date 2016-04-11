@@ -21,7 +21,7 @@ The password may be stored in the configuration file as well.
 
 .. warning::
 
-   The configuration file is plain text. If you choose to keep a password in the file make sure to keep the file locked down.
+   The configuration file is plain text. If you choose to keep a password in the file make sure to keep the file permissions locked down.
 
 .. include:: examples/commctl_config_with_password.rst
 
