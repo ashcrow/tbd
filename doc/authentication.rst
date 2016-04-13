@@ -22,13 +22,13 @@ using the same JSON schema.
 
 Generating a hash
 ~~~~~~~~~~~~~~~~~
-commissaire has a utility to create bcrypt hashes.
+commctl has a built-in command for creating bcrypt hashes.
 
 .. include:: examples/commctl_note.rst
 
 .. code-block:: shell
 
-	$ commissaire-hashpass
+	$ commctl create passhash
 	Password:
 	$2b$12$rq/RN.Y1WD0ZyKPpLJkFVOv3XdLxW5thJ3OEaRgaMMFCgzLzHjiJG
 	$
