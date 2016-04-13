@@ -42,7 +42,7 @@ from commissaire.middleware import JSONify
 
 def create_app(
         store,
-        authentication_module_path,
+        authentication_module_name,
         authentication_kwargs,
         users_paths=('/etc/commissaire/users.json', './conf/users.json')):
     """
@@ -50,8 +50,8 @@ def create_app(
 
     :param store: The etcd client to for storing/retrieving data.
     :type store: etcd.Client
-    :param authentication_module_path: Path to the module.
-    :type authentication_module_path: str
+    :param authentication_module_name: Full name of the authentication module.
+    :type authentication_module_name: str
     :param authentication_kwargs: Keyword arguments to pass to the auth mod.
     :type authentication_kwargs: dict
     :returns: The commissaire application.
@@ -59,12 +59,12 @@ def create_app(
     """
     try:
         authentication_class = getattr(__import__(
-            authentication_module_path, fromlist=["True"]),
+            authentication_module_name, fromlist=["True"]),
             'AuthenticationPlugin')
         authentication = authentication_class(**authentication_kwargs)
     except ImportError:
         raise Exception('Can not import {0} for authentication'.format(
-            authentication_module_path))
+            authentication_module_name))
 
     app = falcon.API(middleware=[authentication, JSONify()])
 
@@ -293,7 +293,7 @@ def main():  # pragma: no cover
         if '=' in args.authentication_plugin_kwargs:
             for item in args.authentication_plugin_kwargs.split(','):
                 key, value = item.split('=')
-                authentication_kwargs[key] = value
+                authentication_kwargs[key.strip()] = value.strip()
         app = create_app(
             ds,
             args.authentication_plugin,
