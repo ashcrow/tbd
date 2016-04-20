@@ -18,7 +18,7 @@ Test cases for the commissaire.cherrypy_plugins module.
 
 import mock
 
-from . import TestCase
+from . import TestCase, TestingObj
 from commissaire import cherrypy_plugins
 
 
@@ -64,8 +64,8 @@ class Test_CherryPyStorePlugin(TestCase):
             store = self.plugin._get_store()
             # We should have a store created with our kwargs
             _store.assert_called_once_with(**self.store_kwargs)
-            # The returned stoer should be exactly the same
-            self.assertEquals(store, _store())
+            # The returned store should be exactly the same
+            self.assertEquals(store.client, _store())
             self.assertEquals(store, self.plugin.store)
 
     def test_cherrypy_store_plugin_start(self):
@@ -95,31 +95,31 @@ class Test_CherryPyStorePlugin(TestCase):
         """
         Verify store_save handles data properly.
         """
-        key = '/test'
-        data = "{}"
         with mock.patch('etcd.Client') as _store:
             store = _store()
             expected_result = mock.MagicMock('etcd.EtcdResult')
             store.write.return_value = expected_result
-            result = self.plugin.store_save(key, data)
+            entity = TestingObj(anint=1)
+            result = self.plugin.store_save(entity)
             # The store should be called to set the data
-            store.write.assert_called_once_with(key, data)
+            store.write.assert_called_once_with(
+                '/testing/anint', 1, quorum=True)
             # The result should be a tuple
-            self.assertEquals((expected_result, None), result)
+            self.assertEquals((entity, None), result)
 
     def test_cherrypy_store_save_error(self):
         """
         Verify store_save handles errors properly.
         """
-        key = '/test'
-        data = "{}"
         with mock.patch('etcd.Client') as _store:
             store = _store()
             expected_result = Exception()
             store.write.side_effect = expected_result
-            result = self.plugin.store_save(key, data)
+            entity = TestingObj(anint=1)
+            result = self.plugin.store_save(entity)
             # The store should be called to set the data
-            store.write.assert_called_once_with(key, data)
+            store.write.assert_called_once_with(
+                '/testing/anint', 1, quorum=True)
             # The result should be a tuple
             self.assertEquals(([], expected_result), result)
 
@@ -127,28 +127,27 @@ class Test_CherryPyStorePlugin(TestCase):
         """
         Verify store_get returns data properly.
         """
-        key = '/test'
         with mock.patch('etcd.Client') as _store:
             store = _store()
-            expected_result = mock.MagicMock('etcd.EtcdResult')
-            store.get.return_value = expected_result
-            result = self.plugin.store_get(key)
+            expected_result = mock.MagicMock('etcd.EtcdResult', value='1')
+            store.read.return_value = expected_result
+            result = self.plugin.store_get(TestingObj())
             # The store should be called to get the data
-            store.get.assert_called_once_with(key)
+            store.read.assert_called_once_with('/testing/anint', quorum=True)
             # The result should be a tuple
-            self.assertEquals((expected_result, None), result)
+            self.assertEquals((mock.ANY, None), result)
+            self.assertEquals(1, result[0].anint)
 
     def test_cherrypy_store_get_error(self):
         """
         Verify store_get returns errors properly.
         """
-        key = '/test'
         with mock.patch('etcd.Client') as _store:
             store = _store()
             expected_result = Exception()
-            store.get.side_effect = expected_result
-            result = self.plugin.store_get(key)
+            store.read.side_effect = expected_result
+            result = self.plugin.store_get(TestingObj())
             # The store should be called to get the data
-            store.get.assert_called_once_with(key)
+            store.read.assert_called_once_with('/testing/anint', quorum=True)
             # The result should be a tuple
             self.assertEquals(([], expected_result), result)

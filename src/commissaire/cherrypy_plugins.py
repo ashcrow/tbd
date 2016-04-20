@@ -18,9 +18,9 @@ CherryPy plugin for storing objects.
 
 import sys
 
-import etcd
-
 from cherrypy.process import plugins
+
+from commissaire import models
 
 
 class CherryPyStorePlugin(plugins.SimplePlugin):
@@ -47,7 +47,7 @@ class CherryPyStorePlugin(plugins.SimplePlugin):
         :rtype: etcd.Client
         """
         if not self.store:
-            self.store = etcd.Client(**self.store_kwargs)
+            self.store = models.Server(etcd_kwargs=self.store_kwargs)
         return self.store
 
     def start(self):
@@ -66,38 +66,34 @@ class CherryPyStorePlugin(plugins.SimplePlugin):
         self.bus.unsubscribe("store-save", self.store_save)
         self.bus.unsubscribe("store-get", self.store_get)
 
-    def store_save(self, key, json_entity, **kwargs):
+    def store_save(self, entity, **kwargs):
         """
-        Saves json to the store.
+        Saves a model to the store.
 
-        :param key: The key to associate the data with.
-        :type key: str
-        :param json_entity: The json data to save.
-        :type json_entity: str
-        :param kwargs: All other keyword-args to pass to client
-        :type kwargs: dict
+        :param entity: The model entity to save.
+        :type entity: models.EtcdObj
         :returns: The stores response and any errors that may have occured
-        :rtype: tuple(etcd.EtcdResult, Exception)
+        :rtype: tuple(model.EtcdObj, Exception)
         """
         try:
             store = self._get_store()
-            return (store.write(key, json_entity, **kwargs), None)
+            return (store.save(entity), None)
         except:
             _, exc, _ = sys.exc_info()
             return ([], exc)
 
-    def store_get(self, key):
+    def store_get(self, entity):
         """
-        Retrieves json from the store.
+        Retrieves a model from the store.
 
-        :param key: The key to associate the data with.
-        :type key: str
+        :param entity: The entity to fill.
+        :type entity: models.EtcdObj
         :returns: The stores response and any errors that may have occured
         :rtype: tuple(etcd.EtcdResult, Exception)
         """
         try:
             store = self._get_store()
-            return (store.get(key), None)
+            return (store.read(entity), None)
         except:
             _, exc, _ = sys.exc_info()
             return ([], exc)

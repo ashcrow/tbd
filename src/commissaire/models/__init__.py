@@ -23,6 +23,8 @@ ORM like interface for etcd.
 
 import json
 
+import etcd
+
 from commissaire.models.fields import Field
 
 
@@ -88,14 +90,19 @@ class _Server(object):
         :rtype: EtcdObj
         """
         for item in obj.render():
-            etcd_resp = self.client.read(item['key'], quorum=True)
-            value = etcd_resp.value
+            try:
+                etcd_resp = self.client.read(item['key'], quorum=True)
+                value = etcd_resp.value
+            except etcd.EtcdKeyNotFound:
+                # Default to None if the key doesn't exist
+                value = None
             if item['dir']:
                 key = item['key'].split('/')[-1]
                 dct = getattr(obj, item['name'])
                 dct[key] = value
             else:
-                setattr(obj, item['name'], value)
+                attr = object.__getattribute__(obj, item['name'])
+                attr.value = value
         return obj
 
 
@@ -117,7 +124,6 @@ class Server(_Server):
         :type kwargs: dict
         :raises: ValueError
         """
-        import etcd
         super(Server, self).__init__(
             etcd.Client(**etcd_kwargs), *args, **kwargs)
 
@@ -155,7 +161,18 @@ class EtcdObj(object):
         :param kwargs: All keyword arguments.
         :type kwargs: dict
         """
+        if 'extend' in kwargs.keys():
+            self.extend(kwargs['extend'])
         pass
+
+    def extend(self, path):
+        """
+        Extends the key path.
+
+        :param path: The key path (appended to __name__)
+        :type path: str
+        """
+        object.__setattr__(self, '__name__', '/'.join((self.__name__, path)))
 
     def __setattr__(self, name, value):
         """
@@ -213,8 +230,9 @@ class EtcdObj(object):
         for field in self._fields:
             # FIXME: This is dumb :-)
             attribute = object.__getattribute__(self, field)
-            data[attribute.name] = json.loads(attribute.json)
-            # Flatten if needed
-            if attribute.name in data[attribute.name].keys():
-                data[attribute.name] = data[attribute.name][attribute.name]
+            if not attribute.hidden:
+                data[attribute.name] = json.loads(attribute.json)
+                # Flatten if needed
+                if attribute.name in data[attribute.name].keys():
+                    data[attribute.name] = data[attribute.name][attribute.name]
         return json.dumps(data)
