@@ -25,14 +25,17 @@ class Field(object):
     Base class for all fields.
     """
 
-    def __init__(self, name):
+    def __init__(self, name, hidden=False):
         """
         Initializes a new Field instance.
 
         :param name: The name of the field
         :type name: str
+        :param hidden: If the field should be hidden during json dumps.
+        :type hidden: bool
         """
         self.name = name
+        self.hidden = hidden
         self._value = None
 
     @property
@@ -43,6 +46,8 @@ class Field(object):
         :returns: JSON representation.
         :rtype: str
         """
+        if self.hidden:
+            return json.dumps({})
         return json.dumps({self.name: self._value})
 
     @property
@@ -161,6 +166,8 @@ class DateTimeField(Field):
         :returns: JSON representation.
         :rtype: str
         """
+        if self.hidden:
+            return json.dumps({})
         return json.dumps({
             self.name: datetime.datetime.strftime(self._value, self._datefmt),
         })
@@ -212,6 +219,8 @@ class DictField(Field):
         :returns: JSON representation.
         :rtype: str
         """
+        if self.hidden:
+            return json.dumps({})
         return json.dumps(self._value)
 
     def _set_value(self, value):
