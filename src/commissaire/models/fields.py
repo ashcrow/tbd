@@ -99,6 +99,7 @@ class _CastField(Field):  # pragma: no cover
     Base class for all Fields which force specific types.
     """
     _caster = None
+    _default_empty = None
 
     def _set_value(self, value):
         """
@@ -107,7 +108,10 @@ class _CastField(Field):  # pragma: no cover
         :param value: The value to use.
         :type value: mixed
         """
-        self._value = self._caster(value)
+        if not value:
+            self._value = self._default_empty
+        else:
+            self._value = self._caster(value)
 
 
 class IntField(_CastField):
@@ -115,6 +119,7 @@ class IntField(_CastField):
     A Field that forces a cast to an int.
     """
     _caster = int
+    _default_empty = None
 
 
 class StrField(_CastField):
@@ -122,6 +127,7 @@ class StrField(_CastField):
     A Field that forces a cast to a str.
     """
     _caster = str
+    _default_empty = ''
 
 
 class DateTimeField(Field):
@@ -155,6 +161,8 @@ class DateTimeField(Field):
         """
         if type(value) is datetime.datetime:
             self._value = value
+        elif not value:
+            self._value = None
         else:
             self._value = datetime.datetime.strptime(value, self._datefmt)
 
@@ -168,6 +176,8 @@ class DateTimeField(Field):
         """
         if self.hidden:
             return json.dumps({})
+        if not self._value:
+            return json.dumps({self.name: None})
         return json.dumps({
             self.name: datetime.datetime.strftime(self._value, self._datefmt),
         })
@@ -179,10 +189,14 @@ class DateTimeField(Field):
         :returns: A structure to be used with etcd
         :rtype: dict
         """
+        if not self._value:
+            value = None
+        else:
+            value = datetime.datetime.strftime(self._value, self._datefmt),
         return {
             'name': self.name,
             'key': self.name,
-            'value': datetime.datetime.strftime(self._value, self._datefmt),
+            'value': value,
             'dir': False,
         }
 
