@@ -57,6 +57,7 @@ class CherryPyStorePlugin(plugins.SimplePlugin):
         self.bus.log('Starting up Store access')
         self.bus.subscribe("store-save", self.store_save)
         self.bus.subscribe("store-get", self.store_get)
+        self.bus.subscribe("store-delete", self.store_delete)
 
     def stop(self):
         """
@@ -65,6 +66,7 @@ class CherryPyStorePlugin(plugins.SimplePlugin):
         self.bus.log('Stopping down Store access')
         self.bus.unsubscribe("store-save", self.store_save)
         self.bus.unsubscribe("store-get", self.store_get)
+        self.bus.unsubscribe("store-delete", self.store_delete)
 
     def store_save(self, entity, **kwargs):
         """
@@ -94,6 +96,22 @@ class CherryPyStorePlugin(plugins.SimplePlugin):
         try:
             store = self._get_store()
             return (store.read(entity, must_exist=True), None)
+        except:
+            _, exc, _ = sys.exc_info()
+            return ([], exc)
+
+    def store_delete(self, entity):
+        """
+        Deletes a model from the store.
+
+        :param entity: The entity to delete.
+        :type entity: models.EtcdObj
+        :returns: The stores response and any errors that may have occured
+        :rtype: tuple(etcd.EtcdResult, Exception)
+        """
+        try:
+            store = self._get_store()
+            return (store.delete(entity), None)
         except:
             _, exc, _ = sys.exc_info()
             return ([], exc)
