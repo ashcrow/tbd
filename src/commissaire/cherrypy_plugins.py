@@ -93,7 +93,7 @@ class CherryPyStorePlugin(plugins.SimplePlugin):
         """
         try:
             store = self._get_store()
-            return (store.read(entity), None)
+            return (store.read(entity, must_exist=True), None)
         except:
             _, exc, _ = sys.exc_info()
             return ([], exc)

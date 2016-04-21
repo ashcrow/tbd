@@ -80,7 +80,7 @@ class _Server(object):
             self.client.write(item['key'], item['value'], quorum=True)
         return obj
 
-    def read(self, obj):
+    def read(self, obj, must_exist=False):
         """
         Retrieve an object.
 
@@ -89,10 +89,12 @@ class _Server(object):
         :returns: A filled out instance
         :rtype: EtcdObj
         """
+        exists = False  # If at least 1 key exists for this object
         for item in obj.render():
             try:
                 etcd_resp = self.client.read(item['key'], quorum=True)
                 value = etcd_resp.value
+                exists = True
             except etcd.EtcdKeyNotFound:
                 # Default to None if the key doesn't exist
                 value = None
@@ -103,6 +105,8 @@ class _Server(object):
             else:
                 attr = object.__getattribute__(obj, item['name'])
                 attr.value = value
+        if must_exist and not exists:
+            raise Exception('{0} does not exist in Etcd'.format(obj))
         return obj
 
 
@@ -133,7 +137,7 @@ class EtcdObj(object):
     Class all objects which want to persist to etcd must subclass.
     """
 
-    _fields = []
+    _fields = {}
 
     def __new__(cls, **kwargs):
         """
@@ -149,9 +153,8 @@ class EtcdObj(object):
             if not key.startswith('_'):
                 attr = getattr(cls, key)
                 if issubclass(attr.__class__, Field):
-                    cls._fields.append(key)
-                    if key in kwargs.keys():
-                        attr.value = kwargs[key]
+                    cls._fields[key] = attr
+
         return cls
 
     def __init__(self, **kwargs):  # pragma: no cover
@@ -163,7 +166,9 @@ class EtcdObj(object):
         """
         if 'extend' in kwargs.keys():
             self.extend(kwargs['extend'])
-        pass
+        for key in kwargs.keys():
+            if key in self._fields.keys():
+                self._fields[key].value = kwargs[key]
 
     def extend(self, path):
         """
@@ -183,11 +188,15 @@ class EtcdObj(object):
         :param value: The value to set on name.
         :type value: any
         """
-        attr = object.__getattribute__(self, name)
-        if name in self._fields:
-            attr.value = value
+        if name in self._fields.keys():
+            self._fields[name].value = value
         else:
             object.__setattr__(self, name, value)
+        # attr = object.__getattribute__(self, name)
+        # if name in self._fields:
+        #     attr.value = value
+        # else:
+        #     object.__setattr__(self, name, value)
 
     def __getattribute__(self, name):
         """
@@ -199,10 +208,9 @@ class EtcdObj(object):
         :rtype: any
         :raises: AttributeError
         """
-        if name in object.__getattribute__(self, '_fields'):
-            return object.__getattribute__(self, name).value
-        else:
-            return object.__getattribute__(self, name)
+        if name in object.__getattribute__(self, '_fields').keys():
+            return self._fields[name].value
+        return object.__getattribute__(self, name)
 
     def render(self):
         """
@@ -212,8 +220,8 @@ class EtcdObj(object):
         :rtype: list(dict{key=str,value=any})
         """
         rendered = []
-        for x in self._fields:
-            items = object.__getattribute__(self, x).render()
+        for name, attr in object.__getattribute__(self, '_fields').items():
+            items = attr.render()
             if type(items) != list:
                 items = [items]
             for i in items:
@@ -226,13 +234,13 @@ class EtcdObj(object):
         """
         Dumps the entire object as a json structure.
         """
+        print self.__name__, self
         data = {}
-        for field in self._fields:
+        for name, attr in object.__getattribute__(self, '_fields').items():
             # FIXME: This is dumb :-)
-            attribute = object.__getattribute__(self, field)
-            if not attribute.hidden:
-                data[attribute.name] = json.loads(attribute.json)
+            if not attr.hidden:
+                data[attr.name] = json.loads(attr.json)
                 # Flatten if needed
-                if attribute.name in data[attribute.name].keys():
-                    data[attribute.name] = data[attribute.name][attribute.name]
+                if attr.name in data[attr.name].keys():
+                    data[attr.name] = data[attr.name][attr.name]
         return json.dumps(data)
