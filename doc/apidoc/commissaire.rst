@@ -11,6 +11,7 @@ Subpackages
     commissaire.containermgr
     commissaire.handlers
     commissaire.jobs
+    commissaire.models
     commissaire.oscmd
     commissaire.transport
 

@@ -17,8 +17,11 @@ import os
 
 from falcon.testing import TestBase
 
+from commissaire.models import EtcdObj, fields
+
 # Keep this list synchronized with oscmd modules.
 available_os_types = ('atomic', 'fedora', 'redhat', 'rhel', 'centos')
+
 
 def get_fixture_file_path(filename):
     """
@@ -39,6 +42,14 @@ def get_fixture_file_path(filename):
             pass
     raise Exception(
         'Can not find path for config: {0}'.format(filename))
+
+
+class TestingObj(EtcdObj):
+    """
+    A simple EtcdObj for testing.
+    """
+    __name__ = 'testing'
+    anint = fields.IntField('anint')
 
 
 class TestCase(TestBase):
