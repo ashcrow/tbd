@@ -136,6 +136,9 @@ def _read_config_file(path=None):
     try:
         with open(path, 'r') as fp:
             json_object = json.load(fp)
+        # XXX Logging is not yet set up, so just print.
+        if using_default:
+            print('Using configuration in {0}'.format(path))
     except IOError:
         if not using_default:
             raise
