@@ -11,8 +11,14 @@
        "etcd-uri": "https://192.168.152.100:2379",
        "etcd-cert-path": "/path/to/etcd_clientside.crt",
        "etcd-cert-key-path": "/path/to/etcd_clientside.key",
-       "authentication-plugin": "commissaire.authentication.httpauthbyfile",
        "kube-uri": "https://192.168.152.101:8080",
-       "authentication-plugin-kwargs": "filepath=conf/users.json"
+       "authentication-plugin": {
+           "name": "commissaire.authentication.httpbasicauth",
+           "users": {
+               "a": {
+                   "hash": "$2a$12$GlBCEIwz85QZUCkWYj11he6HaRHufzIvwQjlKeu7Rwmqi/mWOpRXK"
+               }
+           }
+       }
    }
 

@@ -14,17 +14,77 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import cherrypy
 import bcrypt
 import falcon
+import json
 
 from commissaire.authentication import Authenticator
+from commissaire.compat import exception
 from commissaire.compat.b64 import base64
 
 
-class _HTTPBasicAuth(Authenticator):
+class HTTPBasicAuth(Authenticator):
     """
     Basic auth implementation of an authenticator.
     """
+
+    def __init__(self, filepath=None, users=None):
+        """
+        Creates an instance of the HTTPBasicAuth authenticator.
+
+        If a 'filepath' is specified, the file's content is loaded and, if
+        applicable, merged into the 'users' dictionary.  If no arguments are
+        given, the instance attempts to retrieve user passwords from etcd.
+
+        :param filepath: Path to a JSON file containing hashed passwords
+        :type filepath: str or None
+        :param users: A dictionary of user names and hashed passwords, or None
+        :type users: dict or None
+        :returns: HTTPBasicAuth
+        """
+        self._data = {} if users is None else users
+        if filepath is not None:
+            self._load_from_file(filepath)
+        elif users is None:
+            self._load_from_etcd()
+
+    def _load_from_etcd(self):
+        """
+        Loads authentication information from etcd.
+        """
+        d, error = cherrypy.engine.publish(
+            'store-get', '/commissaire/config/httpbasicauthbyuserlist')[0]
+
+        if error:
+            if type(error) == ValueError:
+                self.logger.warn(
+                    'User configuration in Etcd is not valid JSON. Raising...')
+            else:
+                self.logger.warn(
+                    'User configuration not found in Etcd. Raising...')
+            self._data = {}
+            raise error
+
+        self._data = json.loads(d.value)
+        self.logger.info('Loaded authentication data from Etcd.')
+
+    def _load_from_file(self, path):
+        """
+        Loads authentication information from a JSON file.
+
+        :param path: Path to the JSON file
+        :type path: str
+        """
+        try:
+            with open(path, 'r') as afile:
+                self._data.update(json.load(afile))
+                self.logger.info('Loaded authentication data from local file.')
+        except:
+            _, ve, _ = exception.raise_if_not((ValueError, IOError))
+            self.logger.warn(
+                'Denying all access due to problem parsing '
+                'JSON file: {0}'.format(ve))
 
     def _decode_basic_auth(self, req):
         """
@@ -74,3 +134,6 @@ class _HTTPBasicAuth(Authenticator):
 
         # Forbid by default
         raise falcon.HTTPForbidden('Forbidden', 'Forbidden')
+
+
+AuthenticationPlugin = HTTPBasicAuth
