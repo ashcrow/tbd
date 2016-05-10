@@ -2,6 +2,8 @@
 
    Using client side certificates to access etcd/kubernetes will require proper configuration within etcd/kubernetes.
 
+   Also, this example shows placing hashed user passwords in a separate `users.json` file, presumably with more restrictive access permissions.
+
 .. code-block:: shell
 
    (virtualenv)$ cat /etc/commissaire/commissaire.conf
@@ -14,11 +16,7 @@
        "kube-uri": "https://192.168.152.101:8080",
        "authentication-plugin": {
            "name": "commissaire.authentication.httpbasicauth",
-           "users": {
-               "a": {
-                   "hash": "$2a$12$GlBCEIwz85QZUCkWYj11he6HaRHufzIvwQjlKeu7Rwmqi/mWOpRXK"
-               }
-           }
+           "filepath": "conf/users.json"
        }
    }
 

@@ -15,7 +15,6 @@
 
 
 import cherrypy
-import bcrypt
 import falcon
 import json
 
@@ -108,6 +107,33 @@ class HTTPBasicAuth(Authenticator):
         # Default meaning no user or password
         return (None, None)
 
+    def check_authorization(self, user, passwd):
+        """
+        Checks the user name and password from an Authorization header
+        against the loaded datastore.
+
+        :param user: User nane
+        :type user: string
+        :param passwd: Password
+        :type passwd: string
+        :returns: Whether authorization is valid
+        :rtype: bool
+        """
+        import bcrypt
+
+        valid = False
+        hashed = self._data[user]['hash'].encode('utf-8')
+        try:
+            if bcrypt.hashpw(passwd.encode('utf-8'), hashed) == hashed:
+                self.logger.debug(
+                    'The provided hash for user {0} '
+                    'matched: {1}'.format(user, passwd))
+                valid = True
+        except ValueError:
+            pass  # Bad salt
+
+        return valid
+
     def authenticate(self, req, resp):
         """
         Implements the authentication logic.
@@ -122,15 +148,8 @@ class HTTPBasicAuth(Authenticator):
         if user is not None and passwd is not None:
             if user in self._data.keys():
                 self.logger.debug('User {0} found in datastore.'.format(user))
-                hashed = self._data[user]['hash'].encode('utf-8')
-                try:
-                    if bcrypt.hashpw(passwd.encode('utf-8'), hashed) == hashed:
-                        self.logger.debug(
-                            'The provided hash for user {0} '
-                            'matched: {1}'.format(user, passwd))
-                        return  # Authentication is good
-                except ValueError:
-                    pass  # Bad salt
+                if self.check_authorization(user, passwd):
+                    return  # Authentication is good
 
         # Forbid by default
         raise falcon.HTTPForbidden('Forbidden', 'Forbidden')
