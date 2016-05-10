@@ -107,7 +107,7 @@ class HTTPBasicAuth(Authenticator):
         # Default meaning no user or password
         return (None, None)
 
-    def check_authorization(self, user, passwd):
+    def check_authentication(self, user, passwd):
         """
         Checks the user name and password from an Authorization header
         against the loaded datastore.
@@ -116,7 +116,7 @@ class HTTPBasicAuth(Authenticator):
         :type user: string
         :param passwd: Password
         :type passwd: string
-        :returns: Whether authorization is valid
+        :returns: Whether access is granted
         :rtype: bool
         """
         import bcrypt
@@ -148,7 +148,7 @@ class HTTPBasicAuth(Authenticator):
         if user is not None and passwd is not None:
             if user in self._data.keys():
                 self.logger.debug('User {0} found in datastore.'.format(user))
-                if self.check_authorization(user, passwd):
+                if self.check_authentication(user, passwd):
                     return  # Authentication is good
 
         # Forbid by default
