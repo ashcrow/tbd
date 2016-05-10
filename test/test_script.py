@@ -77,6 +77,23 @@ class Test_ParseArgs(TestCase):
         '  "kube-uri": "http://192.168.100.1:8080"'
         '}')
 
+    bad_config_data = '["I am supposed to be a dictionary. :("]'
+
+    auth_plugin_no_name = ('{'
+        '  "etcd-uri": "http://192.168.100.1:2379",'
+        '  "kube-uri": "http://192.168.100.1:8080",'
+        '  "authentication-plugin": {'
+        '      "kwarg": [1, 2, 3]'
+        '} }')
+
+    auth_plugin = ('{'
+        '  "etcd-uri": "http://192.168.100.1:2379",'
+        '  "kube-uri": "http://192.168.100.1:8080",'
+        '  "authentication-plugin": {'
+        '      "name": "test_module",'
+        '      "kwarg": [1, 2, 3, 4]'
+        '} }')
+
     def test_missing_req_args(self):
         """
         Verify required arguments are caught when missing.
@@ -117,6 +134,40 @@ class Test_ParseArgs(TestCase):
             _open.side_effect = IOError(
                 errno.ENOENT, os.strerror(errno.ENOENT))
             self.assertRaises(IOError, script.parse_args, parser)
+
+    def test_config_file_format(self):
+        """
+        Verify bad config file format is caught.
+        """
+        sys.argv = ['']
+        parser = argparse.ArgumentParser()
+        with mock.patch('__builtin__.open',
+                        mock.mock_open(read_data=self.bad_config_data)
+                ) as _open:
+            self.assertRaises(TypeError, script.parse_args, parser)
+
+    def test_auth_plugin_config(self):
+        """
+        Verify parsing of inline authentication-plugin config.
+        """
+        sys.argv = ['']
+        parser = argparse.ArgumentParser()
+        with mock.patch('__builtin__.open',
+                        mock.mock_open(read_data=self.auth_plugin_no_name)
+                ) as _open:
+            self.assertRaises(ValueError, script.parse_args, parser)
+
+        parser = argparse.ArgumentParser()
+        with mock.patch('__builtin__.open',
+                        mock.mock_open(read_data=self.auth_plugin)
+                ) as _open:
+            args = script.parse_args(parser)
+        self.assertTrue(hasattr(args, 'authentication_plugin'))
+        self.assertTrue(hasattr(args, 'authentication_plugin_kwargs'))
+        self.assertEquals(args.authentication_plugin, 'test_module')
+        self.assertEquals(
+            args.authentication_plugin_kwargs,
+            {'kwarg': [1, 2, 3, 4]})
 
     def test_arg_priority(self):
         """
