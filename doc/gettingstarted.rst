@@ -45,15 +45,7 @@ commissaire will default back to the local files but using Etcd is where configu
 (Optional) Set The Kubernetes Access Method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bearer Token
-````````````
-
-To use a Bearer token:
-
-.. note:: There is no default for the bearer token!
-
-.. include:: examples/etcd_set_kube_bearer_token.rst
-
+There are two methods for accessing Kubernetes: Client Side Certificate and Bearer Token. Only one is needed when working with a secured Kubernetes installation.
 
 (Recommended) Client Certificate
 ````````````````````````````````
@@ -63,6 +55,15 @@ To use a client certificate:
 .. note:: There is no default for the client certificate!
 
 .. include:: examples/etcd_set_kube_client_side_certificate.rst
+
+Bearer Token
+````````````
+
+To use a Bearer token:
+
+.. note:: There is no default for the bearer token!
+
+.. include:: examples/etcd_set_kube_bearer_token.rst
 
 
 (Optional): Build Docker Container
