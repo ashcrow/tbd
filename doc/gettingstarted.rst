@@ -42,8 +42,8 @@ commissaire will default back to the local files but using Etcd is where configu
 .. include:: examples/etcd_logging_example.rst
 
 
-(Recommended) Set The Kubernetes Access Method
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(Optional) Set The Kubernetes Access Method
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bearer Token
 ````````````
@@ -55,8 +55,8 @@ To use a Bearer token:
 .. include:: examples/etcd_set_kube_bearer_token.rst
 
 
-Client Certificate
-``````````````````
+(Recommended) Client Certificate
+````````````````````````````````
 
 To use a client certificate:
 
