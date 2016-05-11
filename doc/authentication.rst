@@ -10,7 +10,6 @@ Enables `Basic Authentication <https://en.wikipedia.org/wiki/Basic_access_authen
 using a :ref:`specific configuration structure <json_users_example>`.
 
 
-
 Arguments
 `````````
 ======== ======== ======================================================
@@ -19,6 +18,10 @@ Name     Required Description
 filepath No       Path to the file holding the JSON content
 users    No       Dictionary of users to directly load
 ======== ======== ======================================================
+
+.. note::
+
+   If no argument is provided the plugin will consult etcd for the JSON content.
 
 commissaire.authentication.httpauthclientcert
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,7 +34,7 @@ Name Required Description
 cn   No       Common name which must match on the client certificate
 ==== ======== ======================================================
 
-Defining Authentication Plugin
+Using an Authentication Plugin
 ------------------------------
 
 The default authentication plugin uses a JSON schema in etcd to lookup users.
