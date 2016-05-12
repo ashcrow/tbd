@@ -20,7 +20,7 @@ Feature Overview
 - Service status for health checking
 - Plug-in based authentication framework
 - Command line interface for operators
-- Out of the box support for Atomic, RHEL, Fedora, and CentOS
+- Built in support for Atomic, RHEL, Fedora, and CentOS
 
 
 Flow
