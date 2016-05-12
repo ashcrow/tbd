@@ -13,14 +13,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+@retrieve
+@cluster
 Feature: Examining A Cluster
 
+  @anonymous
+  @retrieve
   Scenario: Examining an empty cluster without authentication
      Given we are anonymous
        and we have a cluster named honeynut
       when we get the cluster honeynut
       then commissaire will deny access
 
+  @retrieve
   Scenario: Examining an empty cluster with authentication
      Given we have a valid username and password
        and we have a cluster named honeynut
