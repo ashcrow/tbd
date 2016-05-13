@@ -7,7 +7,7 @@ Overview
 
    -- Ryan Cook
 
-commissaire is a lightweight REST interface for upgrading, restarting, and bootstrapping new hosts into an existing Container Management cluster such as Kubernetes or OpenShift.
+commissaire is a lightweight REST interface for upgrading, restarting, and bootstrapping new hosts into an existing Container Management cluster such as OpenShift or Kubernetes.
 
 Feature Overview
 ----------------

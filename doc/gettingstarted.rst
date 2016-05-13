@@ -10,7 +10,7 @@ To test out the current code you will need the following installed:
 * Python2.6+
 * virtualenv
 * etcd2 (running)
-* Kubernetes or OpenShift Cluster (running)
+* OpenShift or Kubernetes Cluster (running)
 * (Optional) docker (running)
 
 Set up virtualenv
