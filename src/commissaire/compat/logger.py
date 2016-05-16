@@ -50,9 +50,7 @@ if __python_version__ == '2' and int(__python_semver__[1]) < 7:
             # Stream isn't an accepted kwarg
             kwargs.pop('stream', None)
 
-            level_name = 'NOTSET'
-            if kwargs.get('level'):
-                level_name = kwargs.pop('level')
+            level_name = kwargs.pop('level', 'NOTSET')
 
             # Get the handler class, create it with it's kwargs and set level
             cls = getattr(__import__(mod, fromlist=['True']), cls_name)
