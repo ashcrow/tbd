@@ -98,7 +98,7 @@ details on how to pass the user-data file properly.
   2016-03-24 10:59:01 (677 MB/s) - ‘cloud-config.txt’ saved [48/48]
 
   $ $EDITOR cloud-config.txt     # Edit the cloud config to your liking
-  $ $EDITOR commisaire.txt       # Edit the commissaire config to your liking
+  $ $EDITOR commissaire.txt      # Edit the commissaire config to your liking
   $ python make-mime.py \
          --attach cloud-config.txt:cloud-config \
          --attach part-handler.py:part-handler \
