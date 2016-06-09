@@ -60,13 +60,14 @@ class Test_InvestigatorPlugin(TestCase):
         """
         Verify start() starts the background process.
         """
+        self.assertFalse(self.plugin.is_alive())
         self.plugin.start()
         self.assertTrue(self.plugin.is_alive())
         self.plugin.stop()
 
     def test_investigator_plugin_stop(self):
         """
-        Verify stop() unsubscribes topics and terminates the process.
+        Verify stop() unsubscribes topics.
         """
         self.plugin.start()
         self.plugin.stop()
@@ -76,4 +77,3 @@ class Test_InvestigatorPlugin(TestCase):
         # to deregister a callback
         for topic in self.topics:
             self.bus.unsubscribe.assert_any_call(topic, mock.ANY)
-        self.assertFalse(self.plugin.is_alive())

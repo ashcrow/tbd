@@ -57,9 +57,6 @@ class InvestigatorPlugin(plugins.SimplePlugin):
         """
         self.bus.log('Stopping down Investigator plugin')
         self.bus.unsubscribe('investigator-is-alive', self.is_alive)
-        if self.is_alive():
-            self.process.terminate()
-            self.process.join()
 
     def is_alive(self):
         """
