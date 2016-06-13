@@ -249,7 +249,8 @@ class Test_HostResource(TestCase):
                 [[MagicMock(value=self.etcd_host), None]],
                 [[MagicMock(value=self.etcd_host), None]],
                 [[MagicMock(value=self.etcd_cluster), None]],
-                [[MagicMock(value=self.etcd_cluster), None]])
+                [[MagicMock(value=self.etcd_cluster), None]],
+                [])
             data = ('{"ssh_priv_key": "dGVzdAo=", "remote_user": "root",'
                     ' "cluster": "testing"}')
             body = self.simulate_request(
@@ -337,7 +338,8 @@ class Test_ImplicitHostResource(TestCase):
                 [[MagicMock(value=self.etcd_host), None]],
                 [[MagicMock(value=self.etcd_host), None]],
                 [[MagicMock(value=self.etcd_cluster), None]],
-                [[MagicMock(value=self.etcd_host), None]])
+                [[MagicMock(value=self.etcd_host), None]],
+                [])
 
             data = ('{"ssh_priv_key": "dGVzdAo=", "remote_user": "root",'
                     ' "cluster": "testing"}')

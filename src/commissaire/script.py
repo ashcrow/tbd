@@ -255,7 +255,7 @@ def main():  # pragma: no cover
     Main script entry point.
     """
     from commissaire.cherrypy_plugins.store import StorePlugin
-    from commissaire.cherrypy_plugins.investigator import InvestigatorPlugin
+    from commissaire.cherrypy_plugins.jobs import JobsPlugin
     config = Config()
 
     epilog = ('Example: ./commissaire -e http://127.0.0.1:2379'
@@ -405,8 +405,7 @@ def main():  # pragma: no cover
 
     # Add our plugins
     StorePlugin(cherrypy.engine, store_kwargs).subscribe()
-    InvestigatorPlugin(
-        cherrypy.engine, config, store_kwargs).subscribe()
+    JobsPlugin(cherrypy.engine).subscribe()
 
     # NOTE: Anything that requires etcd should start AFTER
     # the engine is started
@@ -431,6 +430,8 @@ def main():  # pragma: no cover
 
         # Serve forever
         cherrypy.engine.block()
+
+        logging.info('Commissaire server exiting.')
     except Exception:
         _, ex, _ = exception.raise_if_not(Exception)
         logging.fatal('Unable to start server: {0}'.format(ex))
