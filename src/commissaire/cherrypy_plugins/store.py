@@ -89,7 +89,7 @@ class StorePlugin(plugins.SimplePlugin):
             store = self._get_store()
             self.logger.debug('> SAVE {0} : {1}'.format(key, json_entity))
             response = store.write(key, json_entity, **kwargs)
-            self.logger.debug('< SAVE {0} : {1}'.format(key, response.value))
+            self.logger.debug('< SAVE {0} : {1}'.format(key, response))
             return (response, None)
         except:
             _, exc, _ = sys.exc_info()
