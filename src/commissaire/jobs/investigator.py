@@ -16,8 +16,8 @@
 The investigator job.
 """
 
+import cherrypy
 import datetime
-import etcd
 import json
 import logging
 import os
@@ -50,52 +50,52 @@ def clean_up_key(key_file):
             '{0}. Exception:{1}'.format(key_file, exc_msg))
 
 
-def investigator(queue, config, store_kwargs={}, run_once=False):
+def investigator(to_investigate, ssh_priv_key, remote_user):
     """
     Investigates new hosts to retrieve and store facts.
 
-    :param queue: Queue to pull work from.
-    :type queue: Queue.Queue
-    :param config: Configuration information.
-    :type config: commissaire.config.Config
-    :param store_kwargs: Keyword arguments used to make the etcd client.
-    :type store_kwargs: dict
+    :param to_investigate: Host details, with at least an 'address' key
+    :type to_investigate: dict
+    :param ssh_priv_key: Host's SSH key, base64-encoded
+    :type ssh_priv_key: str
+    :param remote_user: The user to use with SSH
+    :type remote_user: str
     """
     logger = logging.getLogger('investigator')
     logger.info('Investigator started')
 
-    store = etcd.Client(**store_kwargs)
+    # XXX This dictionary is not thread-safe but it seems to be
+    #     read-only once set.  May need to revisit this later.
+    config = cherrypy.config['commissaire.config']
 
-    while True:
-        # Statuses follow:
-        # http://commissaire.readthedocs.org/en/latest/enums.html#host-statuses
-        to_investigate, ssh_priv_key, remote_user = queue.get()
-        address = to_investigate['address']
-        logger.info('{0} is now in investigating.'.format(address))
-        logger.debug(
-            'Investigation details: key={0}, data={1}, remote_user={2}'.format(
-                to_investigate, ssh_priv_key, remote_user))
+    # Statuses follow:
+    # http://commissaire.readthedocs.org/en/latest/enums.html#host-statuses
 
-        transport = ansibleapi.Transport(remote_user)
+    address = to_investigate['address']
+    logger.info('{0} is now in investigating.'.format(address))
+    logger.debug(
+        'Investigation details: key={0}, data={1}, remote_user={2}'.format(
+            to_investigate, ssh_priv_key, remote_user))
 
-        f = tempfile.NamedTemporaryFile(prefix='key', delete=False)
-        key_file = f.name
-        logger.debug(
-            'Using {0} as the temporary key location for {1}'.format(
-                key_file, address))
-        f.write(base64.decodestring(ssh_priv_key))
-        logger.info('Wrote key for {0}'.format(address))
-        f.close()
+    transport = ansibleapi.Transport(remote_user)
 
-        try:
-            key = '/commissaire/hosts/{0}'.format(address)
-            etcd_resp = store.get(key)
-        except Exception as error:
+    f = tempfile.NamedTemporaryFile(prefix='key', delete=False)
+    key_file = f.name
+    logger.debug(
+        'Using {0} as the temporary key location for {1}'.format(
+            key_file, address))
+    f.write(base64.decodestring(ssh_priv_key))
+    logger.info('Wrote key for {0}'.format(address))
+    f.close()
+
+    try:
+        key = '/commissaire/hosts/{0}'.format(address)
+        etcd_resp, error = cherrypy.engine.publish('store-get', key)[0]
+        if error:
             logger.warn(
                 'Unable to continue for {0} due to '
                 '{1}: {2}. Returning...'.format(address, type(error), error))
-            clean_up_key(key_file)
-            continue
+            return
 
         data = json.loads(etcd_resp.value)
 
@@ -111,13 +111,10 @@ def investigator(queue, config, store_kwargs={}, run_once=False):
             logger.warn('Getting info failed for {0}: {1}'.format(
                 address, exc_msg))
             data['status'] = 'failed'
-            store.write(key, json.dumps(data))
-            clean_up_key(key_file)
-            if run_once:
-                break
-            continue
+            cherrypy.engine.publish('store-save', key, json.dumps(data))[0]
+            return
 
-        store.write(key, json.dumps(data))
+        cherrypy.engine.publish('store-save', key, json.dumps(data))[0]
         logger.info(
             'Finished and stored investigation data for {0}'.format(address))
         logger.debug('Finished investigation update for {0}: {1}'.format(
@@ -129,17 +126,14 @@ def investigator(queue, config, store_kwargs={}, run_once=False):
             result, facts = transport.bootstrap(
                 address, key_file, config, oscmd)
             data['status'] = 'inactive'
-            store.write(key, json.dumps(data))
+            cherrypy.engine.publish('store-save', key, json.dumps(data))[0]
         except:
             exc_type, exc_msg, tb = sys.exc_info()
             logger.warn('Unable to start bootstraping for {0}: {1}'.format(
                 address, exc_msg))
             data['status'] = 'disassociated'
-            store.write(key, json.dumps(data))
-            clean_up_key(key_file)
-            if run_once:
-                break
-            continue
+            cherrypy.engine.publish('store-save', key, json.dumps(data))[0]
+            return
 
         # Verify association with the container manager
         try:
@@ -166,15 +160,12 @@ def investigator(queue, config, store_kwargs={}, run_once=False):
                 'the container manager: {1}'.format(address, exc_msg))
             data['status'] = 'inactive'
 
-        store.write(key, json.dumps(data))
+        cherrypy.engine.publish('store-save', key, json.dumps(data))[0]
         logger.info(
             'Finished bootstrapping for {0}'.format(address))
         logging.debug('Finished bootstrapping for {0}: {1}'.format(
             address, data))
 
+    finally:
         clean_up_key(key_file)
-        if run_once:
-            logger.info('Exiting due to run_once request.')
-            break
-
-    logger.info('Investigator stopping')
+        logger.info('Investigator stopping')

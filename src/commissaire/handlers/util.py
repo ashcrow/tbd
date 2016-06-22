@@ -19,8 +19,8 @@ import cherrypy
 import falcon
 import json
 
-from commissaire.queues import INVESTIGATE_QUEUE
 from commissaire.handlers.models import Cluster, Host
+from commissaire.jobs.investigator import investigator
 
 
 def etcd_host_key(address):
@@ -228,6 +228,8 @@ def etcd_host_create(address, ssh_priv_key, remote_user, cluster_name=None):
     if cluster_name:
         etcd_cluster_add_host(cluster_name, address)
 
-    INVESTIGATE_QUEUE.put((host_creation, ssh_priv_key, remote_user))
+    cherrypy.engine.publish(
+        'submit-job', investigator,
+        args=(host_creation, ssh_priv_key, remote_user))
 
     return (falcon.HTTP_201, Host(**json.loads(new_host.value)))

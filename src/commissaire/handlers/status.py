@@ -61,12 +61,13 @@ class StatusResource(Resource):
             self.logger.debug('There is no root directory in etcd...')
             kwargs['etcd']['status'] = 'FAILED'
 
-        # Check investigator proccess
-        # XXX: Change investigator if more than 1 process is allowed
-        if cherrypy.engine.publish('investigator-is-alive')[0]:
-            kwargs['investigator']['status'] = 'OK'
-            kwargs['investigator']['info']['size'] = 1
-            kwargs['investigator']['info']['in_use'] = 1
+        # Check investigator thread
+        # FIXME This information is no longer accurate since switching
+        #       to a global thread pool.  Perhaps the status endpoint
+        #       should show the state of the thread pool instead?
+        kwargs['investigator']['status'] = 'OK'
+        kwargs['investigator']['info']['size'] = 1
+        kwargs['investigator']['info']['in_use'] = 1
 
         self.logger.debug('Status: {0}', kwargs)
 

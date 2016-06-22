@@ -307,12 +307,12 @@ class Test_ClusterRestartResource(TestCase):
         # Process is patched because we don't want to exec the subprocess
         # during unittesting
         with mock.patch('cherrypy.engine.publish') as _publish, \
-             mock.patch('etcd.Client'), \
-             mock.patch('commissaire.handlers.clusters.Process'):
+             mock.patch('etcd.Client'):
 
             _publish.side_effect = (
                 [[MagicMock(value=self.etcd_cluster), None]],
                 [[[], etcd.EtcdKeyNotFound]],
+                [],
                 [[MagicMock(etcd.EtcdResult, value=self.arestart), None]])
 
             body = self.simulate_request(
@@ -561,12 +561,12 @@ class Test_ClusterUpgradeResource(TestCase):
         # Process is patched because we don't want to exec the subprocess
         # during unittesting
         with mock.patch('cherrypy.engine.publish') as _publish, \
-             mock.patch('etcd.Client'), \
-             mock.patch('commissaire.handlers.clusters.Process'):
+             mock.patch('etcd.Client'):
 
             _publish.side_effect = (
                 [[MagicMock(value=self.etcd_cluster), None]],
                 [[[], etcd.EtcdKeyNotFound]],
+                [],
                 [[MagicMock(etcd.EtcdResult, value=self.aupgrade), None]])
 
             # Verify with creation
