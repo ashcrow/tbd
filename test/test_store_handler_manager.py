@@ -50,6 +50,8 @@ class Test_StoreHandlerManager(TestCase):
         self.assertNotEqual(manager, clone_result)
         # But their content should be
         self.assertEqual(manager._registry, clone_result._registry)
+        # And the handlers should still be empty
+        self.assertEqual({}, manager._handlers)
 
     def test_storehandlermanager_get(self):
         """
