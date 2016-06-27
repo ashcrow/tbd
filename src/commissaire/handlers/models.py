@@ -149,6 +149,8 @@ class Hosts(Model):
     _json_type = list
     _attributes = ('hosts', )
     _key = '/commissaire/hosts/'
+    _list_container = 'hosts'
+    _list_class = Host
 
     @classmethod
     def retrieve(klass, *parts):
