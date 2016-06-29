@@ -135,6 +135,7 @@ There are a number of tags within the tests. Using these tags can target
 specific parts of the codebase without running the full suite. Use ``-t`` to
 specify tags. ``-k`` is also helpful as it will suppress showing the tests
 that did not run. Using a ``~`` before the tag will disable all test with that tag.
+See behave ``--tags-help`` for more details
 
 ============= =====================================================
 Tag           Description
