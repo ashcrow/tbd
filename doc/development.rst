@@ -132,8 +132,9 @@ To run e2e/bdd tests locally and see where your code stands:
 .. include:: examples/run_e2e_bdd_example.rst
 
 There are a number of tags within the tests. Using these tags can target
-specific parts of the codebase without running the full suite. Use `-t` to
-specify tags. Using a `~` before the tag will disable all test with that tag.
+specific parts of the codebase without running the full suite. Use ``-t`` to
+specify tags. ``-k`` is also helpful as it will suppress showing the tests
+that did not run. Using a ``~`` before the tag will disable all test with that tag.
 
 ============= =====================================================
 Tag           Description
@@ -155,3 +156,5 @@ ssh           Tests which use the ssh related functionality
 status        Tests that are specific to the status functionality
 upgrade       Tests which use the upgrade functionality
 ============= =====================================================
+
+.. include:: examples/run_e2e_bdd_with_tags_example.rst
