@@ -18,8 +18,6 @@ Models for handlers.
 
 import json
 
-import cherrypy
-
 from commissaire.model import Model
 
 
@@ -30,7 +28,6 @@ class Cluster(Model):
     _json_type = dict
     _attributes = ('name', 'status', 'hostset')
     _hidden_attributes = ('hostset',)
-    _key = '/commissaire/clusters/{0}'
     _primary_key = 'name'
 
     def __init__(self, **kwargs):
@@ -51,19 +48,6 @@ class Cluster(Model):
         data['hosts'] = self.hosts
         return json.dumps(data)
 
-    def save(self, *parts):
-        """
-        Saves the model to the object store.
-
-        :raises: Exception if unable to save
-        :returns: Itself
-        :rtype: model
-        """
-        key = self._key.format(*parts)
-        store_manager = cherrypy.engine.publish('get-store-manager')[0]
-        store_manager.save(key, self.to_json(secure=True))
-        return self
-
 
 class ClusterDeploy(Model):
     """
@@ -73,7 +57,6 @@ class ClusterDeploy(Model):
     _attributes = (
         'name', 'status', 'version', 'deployed', 'in_process',
         'started_at', 'finished_at')
-    _key = '/commissaire/cluster/{0}/deploy'
     _primary_key = 'name'
 
 
@@ -85,7 +68,6 @@ class ClusterRestart(Model):
     _attributes = (
         'name', 'status', 'restarted', 'in_process',
         'started_at', 'finished_at')
-    _key = '/commissaire/cluster/{0}/restart'
     _primary_key = 'name'
 
 
@@ -97,7 +79,6 @@ class ClusterUpgrade(Model):
     _attributes = (
         'name', 'status', 'upgraded',
         'in_process', 'started_at', 'finished_at')
-    _key = '/commissaire/cluster/{0}/upgrade'
     _primary_key = 'name'
 
 
@@ -107,29 +88,8 @@ class Clusters(Model):
     """
     _json_type = list
     _attributes = ('clusters',)
-    _key = '/commissaire/clusters/'
     _list_container = 'clusters'
     _list_class = Cluster
-
-    @classmethod
-    def retrieve(klass, *parts):
-        """
-        Gets a list of hosts from the store.
-
-        :raises: Exception if unable to save
-        :returns: Itself
-        :rtype: model
-        """
-        key = klass._key.format(*parts)
-        store_manager = cherrypy.engine.publish('get-store-manager')[0]
-        etcd_resp = store_manager.list(key)
-        clusters = []
-        for x in etcd_resp.children:
-            if etcd_resp.key != x.key:
-                name = x.key.split('/')[-1]
-                if name:
-                    clusters.append(name)
-        return klass(clusters=clusters)
 
 
 class Host(Model):
@@ -141,7 +101,6 @@ class Host(Model):
         'address', 'status', 'os', 'cpus', 'memory',
         'space', 'last_check', 'ssh_priv_key', 'remote_user')
     _hidden_attributes = ('ssh_priv_key', 'remote_user')
-    _key = '/commissaire/hosts/{0}'
     _primary_key = 'address'
 
 
@@ -151,28 +110,8 @@ class Hosts(Model):
     """
     _json_type = list
     _attributes = ('hosts', )
-    _key = '/commissaire/hosts/'
     _list_container = 'hosts'
     _list_class = Host
-
-    @classmethod
-    def retrieve(klass, *parts):
-        """
-        Gets the model from the object store.
-
-        :raises: Exception if unable to save
-        :returns: Itself
-        :rtype: model
-        """
-        key = klass._key.format(*parts)
-        hosts = []
-        store_manager = cherrypy.engine.publish('get-store-manager')[0]
-        etcd_resp = store_manager.get(key)
-
-        for host in etcd_resp.children:
-            hosts.append(Host(**json.loads(host.value)))
-
-        return klass(hosts=hosts)
 
 
 class Status(Model):
