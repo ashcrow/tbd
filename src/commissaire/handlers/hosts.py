@@ -81,18 +81,7 @@ class HostCredsResource(Resource):
         #       middleware system.
         try:
             store_manager = cherrypy.engine.publish('get-store-manager')[0]
-            # TODO: use some kind of global default for Hosts
-            host = store_manager.get(
-                Host(
-                    address=address,
-                    status='',
-                    os='',
-                    cpus=0,
-                    memory=0,
-                    space=0,
-                    last_check='',
-                    ssh_priv_key='',
-                    remote_user=''))
+            host = store_manager.get(Host.new(address=address))
             resp.status = falcon.HTTP_200
             body = {
                 'ssh_priv_key': host.ssh_priv_key,
@@ -124,17 +113,7 @@ class HostResource(Resource):
         try:
             store_manager = cherrypy.engine.publish('get-store-manager')[0]
             # TODO: use some kind of global default for Hosts
-            host = store_manager.get(
-                Host(
-                    address=address,
-                    status='',
-                    os='',
-                    cpus=0,
-                    memory=0,
-                    space=0,
-                    last_check='',
-                    ssh_priv_key='',
-                    remote_user=''))
+            host = store_manager.get(Host.new(address=address))
             resp.status = falcon.HTTP_200
             req.context['model'] = host
         except:
@@ -189,17 +168,7 @@ class HostResource(Resource):
         store_manager = cherrypy.engine.publish('get-store-manager')[0]
         try:
             # TODO: use some kind of global default for Hosts
-            store_manager.delete(
-                Host(
-                    address=address,
-                    status='',
-                    os='',
-                    cpus=0,
-                    memory=0,
-                    space=0,
-                    last_check='',
-                    ssh_priv_key='',
-                    remote_user=''))
+            store_manager.delete(Host.new(address=address))
             resp.status = falcon.HTTP_200
         except:
             resp.status = falcon.HTTP_404

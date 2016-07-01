@@ -28,6 +28,7 @@ class Cluster(Model):
     _json_type = dict
     _attributes = ('name', 'status', 'hostset')
     _hidden_attributes = ('hostset',)
+    _attribute_defaults = {'name': '', 'status': '', 'hostset': []}
     _primary_key = 'name'
 
     def __init__(self, **kwargs):
@@ -57,6 +58,9 @@ class ClusterDeploy(Model):
     _attributes = (
         'name', 'status', 'version', 'deployed', 'in_process',
         'started_at', 'finished_at')
+    _attribute_defaults = {
+        'name': '', 'status': '', 'version': '',
+        'deployed': [], 'in_process': [], 'started_at': '', 'finished_at': ''}
     _primary_key = 'name'
 
 
@@ -68,6 +72,9 @@ class ClusterRestart(Model):
     _attributes = (
         'name', 'status', 'restarted', 'in_process',
         'started_at', 'finished_at')
+    _attribute_defaults = {
+        'name': '', 'status': '', 'restarted': [],
+        'in_process': [], 'started_at': '', 'finished_at': ''}
     _primary_key = 'name'
 
 
@@ -79,6 +86,9 @@ class ClusterUpgrade(Model):
     _attributes = (
         'name', 'status', 'upgraded',
         'in_process', 'started_at', 'finished_at')
+    _attribute_defaults = {
+        'name': '', 'status': '', 'upgraded': [],
+        'in_process': [], 'started_at': '', 'finished_at': ''}
     _primary_key = 'name'
 
 
@@ -88,6 +98,7 @@ class Clusters(Model):
     """
     _json_type = list
     _attributes = ('clusters',)
+    _attribute_defaults = {'clusters': []}
     _list_container = 'clusters'
     _list_class = Cluster
 
@@ -100,6 +111,10 @@ class Host(Model):
     _attributes = (
         'address', 'status', 'os', 'cpus', 'memory',
         'space', 'last_check', 'ssh_priv_key', 'remote_user')
+    _attribute_defaults = {
+        'address': '', 'status': '', 'os': '', 'cpus': 0,
+        'memory': 0, 'space': 0, 'last_check': '', 'ssh_priv_key': '',
+        'remote_user': 'root'}
     _hidden_attributes = ('ssh_priv_key', 'remote_user')
     _primary_key = 'address'
 
@@ -110,6 +125,7 @@ class Hosts(Model):
     """
     _json_type = list
     _attributes = ('hosts', )
+    _attribute_defaults = {'hosts': []}
     _list_container = 'hosts'
     _list_class = Host
 
@@ -121,3 +137,4 @@ class Status(Model):
     _json_type = dict
     _attributes = (
         'etcd', 'investigator')
+    _attribute_defaults = {'etcd': {}, 'investigator': {}}
