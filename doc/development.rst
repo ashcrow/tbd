@@ -18,6 +18,19 @@ your system with application only dependencies while you code.
 
    Any time you will be working on commissaire make sure to activate the virtualenv
 
+Vagrant
+-------
+A ``Vagrantfile`` is provided which will give you a full local development setup.
+
+.. warning::
+
+   The initial run updates the systems and can take some time.
+
+To run the vagrant development environment make sure you have a support
+virtualization system as well as vagrant installed and execute ``vagrant up``.
+
+For more information see the `Vagrant site <https://www.vagrantup.com>`_.
+
 Getting Up To Speed
 -------------------
 
