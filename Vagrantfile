@@ -21,6 +21,7 @@ Vagrant.configure(2) do |config|
         echo "===> Configuring etcd"
         sudo sed -i "s/localhost/192.168.152.101/g" /etc/etcd/etcd.conf
         echo "===> Starting etcd"
+        sudo systemctl enable etcd
         sudo systemctl start etcd
       SHELL
     # End etcd
@@ -80,8 +81,8 @@ Vagrant.configure(2) do |config|
       sudo sed -i 's|^ExecStart=.*|ExecStart=/bin/bash -c ". /home/vagrant/commissaire_env/bin/activate \\&\\& commissaire -c /etc/commissaire/commissaire.conf"|' /etc/systemd/system/commissaire.service
       sudo sed -i 's|Type=simple|\&\\nWorkingDirectory=/vagrant|' /etc/systemd/system/commissaire.service
       sudo systemctl daemon-reload
-      sudo systemctl enable commissaire
       echo "===> Starting commissaire"
+      sudo systemctl enable commissaire
       sudo systemctl start commissaire
     SHELL
   # End commissaire
