@@ -18,6 +18,8 @@ your system with application only dependencies while you code.
 
    Any time you will be working on commissaire make sure to activate the virtualenv
 
+.. _vagrant:
+
 Vagrant
 -------
 A ``Vagrantfile`` is provided which will give you a full local development setup.

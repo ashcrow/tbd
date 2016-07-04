@@ -27,13 +27,13 @@ Vagrant.configure(2) do |config|
     end
 
     # Development Node 1
-    config.vm.define "node1" do |node|
+    config.vm.define "fedora-cloud" do |node|
       node.vm.box = "fedora/24-cloud-base"
       node.vm.network "private_network", ip: "192.168.152.110"
       node.vm.provision "shell", inline: <<-SHELL
         echo "==> Setting hostname"
-        echo "node1" > /etc/hostname
-        hostname node1
+        echo "fedora-cloud" > /etc/hostname
+        hostname fedora-cloud
         echo "===> Updating the system"
         sudo dnf update --setopt=tsflags=nodocs -y
       SHELL
@@ -41,15 +41,16 @@ Vagrant.configure(2) do |config|
     end
 
     # Development Node 1
-    config.vm.define "node2" do |node|
-      node.vm.box = "fedora/24-cloud-base"
+    config.vm.define "fedora-atomic" do |node|
+      node.vm.box = "fedora/23-atomic-host"
       node.vm.network "private_network", ip: "192.168.152.111"
       node.vm.provision "shell", inline: <<-SHELL
         echo "==> Setting hostname"
-        echo "node2" > /etc/hostname
-        hostname node2
+        echo "fedora-atomic" > /etc/hostname
+        hostname fedora-atomic
         echo "===> Updating the system"
-        sudo dnf update --setopt=tsflags=nodocs -y
+        sudo atomic host upgrade
+        sudo systemctl reboot
       SHELL
     # End node2
     end
@@ -75,6 +76,7 @@ Vagrant.configure(2) do |config|
       sudo chmod 644 /etc/systemd/system/commissaire.service
       sudo mkdir /etc/commissaire
       sudo cp /vagrant/conf/commissaire.conf /etc/commissaire/commissaire.conf
+      sudo sed -i 's|127.0.0.1|192.168.152.100|g' /etc/commissaire/commissaire.conf
       sudo sed -i 's|^ExecStart=.*|ExecStart=/bin/bash -c ". /home/vagrant/commissaire_env/bin/activate \\&\\& commissaire -c /etc/commissaire/commissaire.conf"|' /etc/systemd/system/commissaire.service
       sudo sed -i 's|Type=simple|\&\\nWorkingDirectory=/vagrant|' /etc/systemd/system/commissaire.service
       sudo systemctl daemon-reload
