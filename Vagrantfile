@@ -12,9 +12,8 @@ Vagrant.configure(2) do |config|
       etcd.vm.network "private_network", ip: "192.168.152.101"
       etcd.vm.provision "shell", inline: <<-SHELL
         echo "==> Setting hostname"
-        echo "etcd" > /etc/hostname
-        hostname etcd
-        echo "===> Updating the system"
+        sudo hostnamectl set-hostname etcd
+        #echo "===> Updating the system"
         sudo dnf update --setopt=tsflags=nodocs -y
         echo "===> Installing etcd"
         sudo dnf install -y etcd
@@ -33,8 +32,7 @@ Vagrant.configure(2) do |config|
       node.vm.network "private_network", ip: "192.168.152.110"
       node.vm.provision "shell", inline: <<-SHELL
         echo "==> Setting hostname"
-        echo "fedora-cloud" > /etc/hostname
-        hostname fedora-cloud
+        sudo hostnamectl set-hostname fedora-cloud
         echo "===> Updating the system"
         sudo dnf update --setopt=tsflags=nodocs -y
       SHELL
@@ -47,8 +45,7 @@ Vagrant.configure(2) do |config|
       node.vm.network "private_network", ip: "192.168.152.111"
       node.vm.provision "shell", inline: <<-SHELL
         echo "==> Setting hostname"
-        echo "fedora-atomic" > /etc/hostname
-        hostname fedora-atomic
+        sudo hostnamectl set-hostname fedora-atomic
         echo "===> Updating the system"
         sudo atomic host upgrade
         sudo systemctl reboot
@@ -62,8 +59,7 @@ Vagrant.configure(2) do |config|
     commissaire.vm.network "private_network", ip: "192.168.152.100"
     commissaire.vm.provision "shell", inline: <<-SHELL
       echo "==> Setting hostname"
-      echo "commissaire" > /etc/hostname
-      hostname commissaire
+      sudo hostnamectl set-hostname commissaire
       echo "===> Updating the system"
       sudo dnf update -y
       echo "===> Installing OS dependencies"
