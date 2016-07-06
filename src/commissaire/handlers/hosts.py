@@ -53,7 +53,7 @@ class HostsResource(Resource):
             # This was originally a "no content" but I think a 404 makes
             # more sense if there are no hosts
             self.logger.warn(
-                'Etcd does not have any hosts. Returning [] and 404.')
+                'Store does not have any hosts. Returning [] and 404.')
             resp.status = falcon.HTTP_404
             req.context['model'] = None
             return
@@ -180,7 +180,7 @@ class HostResource(Resource):
         try:
             clusters = store_manager.list(Clusters(clusters=[]))
         except:
-            self.logger.warn('Etcd does not have any clusters')
+            self.logger.warn('Store does not have any clusters')
             return
         try:
             for cluster in clusters.clusters:

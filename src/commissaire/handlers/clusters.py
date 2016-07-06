@@ -57,8 +57,7 @@ class ClustersResource(Resource):
             return
 
         if clusters.clusters == []:
-            self.logger.debug(
-                'Store has a clusters directory but no content.')
+            self.logger.debug('Store returned an empty cluster list.')
             resp.status = falcon.HTTP_200
             return
 
@@ -88,7 +87,7 @@ class ClusterResource(Resource):
             hosts = store_manager.list(Hosts(hosts=[]))
         except:
             self.logger.warn(
-                'Etcd does not have any hosts. '
+                'Store does not have any hosts. '
                 'Cannot determine cluster stats.')
             return
 
