@@ -130,7 +130,7 @@ class EtcdStoreHandler(StoreHandlerBase):
         if model_instance._json_type is list:
             setattr(
                 model_instance,
-                model_instance._list_container,
+                model_instance._list_attr,
                 results)
         return model_instance
 
