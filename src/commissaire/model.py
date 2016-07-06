@@ -33,7 +33,7 @@ class Model(object):
     #: Defaults to use for attributes when calling new()
     _attribute_defaults = {}
     #: The attribute name which stores items if this is a list type
-    _list_container = None
+    _list_attr = None
     #: The class for items which will be stored in the list attribute
     _list_class = None
 

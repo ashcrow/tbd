@@ -99,7 +99,7 @@ class Clusters(Model):
     _json_type = list
     _attributes = ('clusters',)
     _attribute_defaults = {'clusters': []}
-    _list_container = 'clusters'
+    _list_attr = 'clusters'
     _list_class = Cluster
 
 
@@ -126,7 +126,7 @@ class Hosts(Model):
     _json_type = list
     _attributes = ('hosts', )
     _attribute_defaults = {'hosts': []}
-    _list_container = 'hosts'
+    _list_attr = 'hosts'
     _list_class = Host
 
 

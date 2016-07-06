@@ -63,8 +63,7 @@ class EtcdStoreHandler(StoreHandlerBase):
         if model_instance._primary_key:
             subkey = subkey.format(
                 getattr(model_instance, model_instance._primary_key))
-        return '{}{}'.format(
-            self._etcd_namespace, subkey)
+        return self._etcd_namespace + subkey
 
     def _save(self, model_instance):
         """
