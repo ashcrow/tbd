@@ -57,7 +57,7 @@ def etcd_cluster_exists(name):
     return True
 
 
-def cluster_for_host(address, store_manager=None):
+def cluster_for_host(address, store_manager):
     """
     Checks to see if the the host is part of a cluster. KeyError is raised
     if the host is not part of a cluster.
@@ -70,9 +70,6 @@ def cluster_for_host(address, store_manager=None):
     :rtype: commissaire.model.Model
     :rasies: KeyError
     """
-    if store_manager is None:
-        store_manager = cherrypy.engine.publish('get-store-manager')[0]
-
     for cluster in store_manager.list(Clusters.new()).clusters:
         if address in cluster.hostset:
             return cluster
