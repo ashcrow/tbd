@@ -134,7 +134,7 @@ def investigator(queue, config, run_once=False):
         oscmd = get_oscmd(host.os)
         try:
             result, facts = transport.bootstrap(
-                address, key_file, config, oscmd, store_manager.clone())
+                address, key_file, config, oscmd, store_manager)
             host.status = 'inactive'
             store_manager.save(host)
         except:
@@ -150,7 +150,7 @@ def investigator(queue, config, run_once=False):
 
         host.status = cluster_type = C.CLUSTER_TYPE_HOST
         try:
-            cluster = util.cluster_for_host(address, store_manager.clone())
+            cluster = util.cluster_for_host(address, store_manager)
             cluster_type = cluster.type
         except KeyError:
             # Not part of a cluster
