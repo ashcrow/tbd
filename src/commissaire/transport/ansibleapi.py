@@ -355,7 +355,7 @@ class Transport:
         :param config: Configuration information.
         :type config: commissaire.config.Config
         :param oscmd: OSCmd class to use
-        :param store_manager: Proxy object for remtote stores
+        :param store_manager: Remote object for remtote stores
         :type store_manager: commissaire.store.StoreHandlerManager
         :type oscmd: commissaire.oscmd.OSCmdBase
         :returns: tuple -- (exitcode(int), facts(dict)).
