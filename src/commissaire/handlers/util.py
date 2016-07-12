@@ -64,7 +64,7 @@ def cluster_for_host(address, store_manager):
 
     :param name: Name of a cluster
     :type name: str
-    :param store_manager: Remote object for remtote stores
+    :param store_manager: Remote object for remote stores
     :type store_manager: commissaire.store.StoreHandlerManager
     :returns: A cluster instance that has the host
     :rtype: commissaire.model.Model
