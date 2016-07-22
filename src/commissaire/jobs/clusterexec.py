@@ -52,7 +52,6 @@ def clusterexec(store_manager, cluster_name, command, kwargs={}):
             started_at=datetime.datetime.utcnow().isoformat(),
             upgraded=[],
             in_process=[],
-            finished_at=None
         )
     elif command == 'restart':
         finished_hosts_key = 'restarted'
@@ -62,11 +61,10 @@ def clusterexec(store_manager, cluster_name, command, kwargs={}):
             started_at=datetime.datetime.utcnow().isoformat(),
             restarted=[],
             in_process=[],
-            finished_at=None
         )
     elif command == 'deploy':
         finished_hosts_key = 'deployed'
-        version = kwargs.get('version')
+        version = kwargs.get('version', '')
         command_args = (version,)
         model_instance = ClusterDeploy.new(
             name=cluster_name,
@@ -75,7 +73,6 @@ def clusterexec(store_manager, cluster_name, command, kwargs={}):
             version=version,
             deployed=[],
             in_process=[],
-            finished_at=None
         )
 
     end_status = 'finished'
