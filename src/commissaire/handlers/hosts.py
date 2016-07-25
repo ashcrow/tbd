@@ -49,7 +49,7 @@ class HostsResource(Resource):
                 raise Exception()
             resp.status = falcon.HTTP_200
             req.context['model'] = hosts
-        except Exception as ex:
+        except Exception:
             # This was originally a "no content" but I think a 404 makes
             # more sense if there are no hosts
             self.logger.warn(
