@@ -51,10 +51,6 @@ class KubernetesStoreHandler(StoreHandlerBase):
         :type config: dict
         """
         self._store = requests.Session()
-        self._endpoint = '{0}://{1}:{2}/api/{3}'.format(
-            config['protocol'], config['host'],
-            config['port'], _API_VERSION)
-
         # Use a bearer token if it's provided
         token = config.get('token', None)
         if token:
@@ -72,34 +68,45 @@ class KubernetesStoreHandler(StoreHandlerBase):
             config['protocol'], config['host'],
             config['port'], _API_VERSION)
 
+        # The endpoint to hit for secrets
+        self._secrets_endpoint = self._endpoint + '/namespaces/default/secrets'
+
     def _format_kwargs(self, model_instance, annotations, listing=False):
         """
         Formats keyword arguments used when creating a model.
 
+        :param model_instance: Model instance to save
+        :type model_instance: commissaire.model.Model
         :param annotations: Annotations to use when creating keyword arguments.
         :type annotations: dict
+        :param listing: Notes if this is an attempt to get a list of items.
+        :type listing: bool
+        :returns: Dictionary of keyword arguments
+        :rtype: dict
         """
         kwargs = {}
         for k, v in annotations.items():
-            parts = k.split('-')
-            # Make sure we the data is for this instance
-            if (model_instance.__class__.__name__.lower() != parts[1] and not
-                    listing):
-                continue
-            elif not listing:
-                if model_instance.primary_key != parts[2]:
+            try:
+                _, class_name, primary_key, model_kwarg = k.split('-', 3)
+                model_kwarg = model_kwarg.replace('-', '_')
+
+                # Make sure we the data is for this instance
+                if (model_instance.__class__.__name__.lower() != class_name and
+                        not listing):
                     continue
+                elif not listing:
+                    if model_instance.primary_key != primary_key:
+                        continue
 
-            # Recreate the key
-            model_kwarg = ''.join(parts[3:]).replace('-', '_')
+                # Deserialize any json structs
+                if v.startswith('json:'):
+                    v = json.loads(v[5:])
 
-            # Deserialize any json structs
-            if v.startswith('json:'):
-                v = json.loads(v[5:])
-
-            if model_kwarg in model_instance._attributes:
-                kwargs[model_kwarg] = v
-
+                if model_kwarg in model_instance._attributes:
+                    kwargs[model_kwarg] = v
+            except ValueError:
+                # This means it is not a commissaire model annotaiton.
+                pass
         return kwargs
 
     def _format_model(self, resp_data, model_instance, listing=False):
@@ -110,6 +117,8 @@ class KubernetesStoreHandler(StoreHandlerBase):
         :type resp_data: dict
         :param model_instance: Model instance to save
         :type model_instance: commissaire.model.Model
+        :param listing: Notes if this is an attempt to get a list of items.
+        :type listing: bool
         :returns: The model instance
         :rtype: commissaire.model.Model
         """
@@ -153,7 +162,7 @@ class KubernetesStoreHandler(StoreHandlerBase):
             encoded_data[k.replace('_', '-')] = base64.encodebytes(v)
 
         return self._store.post(
-            self._endpoint + '/namespaces/default/secrets',
+            self._secrets_endpoint,
             json={
                 'apiVersion': _API_VERSION,
                 'kind': 'Secret',
@@ -171,8 +180,7 @@ class KubernetesStoreHandler(StoreHandlerBase):
         :param name: The name of the secret.
         :type name: str
         """
-        response = self._store.get(
-            self._endpoint + '/namespaces/default/secrets/' + name)
+        response = self._store.get(self._secrets_endpoint + '/' + name)
 
         if response.status_code != requests.codes.OK:
             raise KeyError('No secrets for {0}'.format(name))
@@ -200,8 +208,7 @@ class KubernetesStoreHandler(StoreHandlerBase):
         :param name: The name of the secret.
         :type name: str
         """
-        return self._store.delete(
-            self._endpoint + '/namespaces/default/secrets/' + name)
+        return self._store.delete(self._secrets_endpoint + '/' + name)
 
     def _dispatch(self, op, model_instance):
         """
