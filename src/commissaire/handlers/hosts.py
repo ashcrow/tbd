@@ -45,13 +45,11 @@ class HostsResource(Resource):
         try:
             store_manager = cherrypy.engine.publish('get-store-manager')[0]
             hosts = store_manager.list(Hosts(hosts=[]))
-            print hosts
             if len(hosts.hosts) == 0:
                 raise Exception()
             resp.status = falcon.HTTP_200
             req.context['model'] = hosts
         except Exception as ex:
-            print ex
             # This was originally a "no content" but I think a 404 makes
             # more sense if there are no hosts
             self.logger.warn(
