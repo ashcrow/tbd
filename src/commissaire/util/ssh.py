@@ -39,14 +39,20 @@ class TemporarySSHKey:
         """
         self._host = host
         self.logger = logger
+        self.path = None
+
+    def create(self):
+        """
+        Creates the temporary key.
+        """
         with tempfile.NamedTemporaryFile(prefix='key', delete=False) as f:
             self.path = f.name
             self.logger.debug(
                 'Using {0} as the temporary key location for {1}'.format(
-                    self.path, host.address))
-            f.write(base64.decodestring(host.ssh_priv_key))
+                    self.path, self._host.address))
+            f.write(base64.decodestring(self._host.ssh_priv_key))
             f.flush()
-            self.logger.info('Wrote key for {0}'.format(host.address))
+            self.logger.info('Wrote key for {0}'.format(self._host.address))
 
     def remove(self):
         """
@@ -61,3 +67,16 @@ class TemporarySSHKey:
             self.logger.warn(
                 'Unable to remove the temporary key file: '
                 '{0}. Exception:{1}'.format(self.path, exc_msg))
+
+    def __enter__(self):
+        """
+        Executed upon the start of the context manager.
+        """
+        self.create()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """
+        Executed upon the exit of the context manager.
+        """
+        self.remove()

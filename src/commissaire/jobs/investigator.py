@@ -68,6 +68,7 @@ def investigator(queue, config, run_once=False):
                     ssh_priv_key='',
                     remote_user=''))
             key = TemporarySSHKey(host, logger)
+            key.create()
         except Exception as error:
             logger.warn(
                 'Unable to continue for {0} due to '

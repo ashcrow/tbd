@@ -136,6 +136,7 @@ def clusterexec(store_manager, cluster_name, command, kwargs={}):
             return
 
         key = TemporarySSHKey(host, logger)
+        key.create()
 
         try:
             transport = ansibleapi.Transport(host.remote_user)

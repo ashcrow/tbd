@@ -35,9 +35,18 @@ class Test_TemporarySSHKey(TestCase):
 
     def test_temporarysshkey__init(self):
         """
-        Verify init of TemporarySSHKey creates a new key.
+        Verify init of TemporarySSHKey sets up the instances.
         """
         key = TemporarySSHKey(TEST_HOST, logging.getLogger())
+        # There should be no path yet
+        self.assertEquals(None, key.path)
+
+    def test_temporarysshkey_create(self):
+        """
+        Verify create of TemporarySSHKey creates a new key.
+        """
+        key = TemporarySSHKey(TEST_HOST, logging.getLogger())
+        key.create()
         self.assertTrue(os.path.isfile(key.path))
         os.unlink(key.path)
 
@@ -46,6 +55,15 @@ class Test_TemporarySSHKey(TestCase):
         Verify TemporarySSHKey.remove successfully removes keys.
         """
         key = TemporarySSHKey(TEST_HOST, logging.getLogger())
+        key.create()
         self.assertTrue(os.path.isfile(key.path))
         key.remove()
+        self.assertFalse(os.path.isfile(key.path))
+
+    def test_temporarysshkey_contextmanager(self):
+        """
+        Verify TemporarySSHKey can be used as a context manager.
+        """
+        with TemporarySSHKey(TEST_HOST, logging.getLogger()) as key:
+            self.assertTrue(os.path.isfile(key.path))
         self.assertFalse(os.path.isfile(key.path))
