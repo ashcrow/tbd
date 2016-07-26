@@ -32,7 +32,7 @@ class TemporarySSHKey:
         """
         Initializes an instance of the TemporarySSHKey class.
 
-        :param host: Host to grab ket data from.
+        :param host: Host to grab key data from.
         :type host: commissaire.handlers.models.Host
         :param logger: Logger to utilize.
         :type logger: logging.Logger
