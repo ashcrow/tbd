@@ -32,6 +32,8 @@ def watcher(queue, store_manager, run_once=False):
 
     :param queue: Queue to pull work from.
     :type queue: Queue.Queue
+    :param store_manager: Proxy object for remtote stores
+    :type store_manager: commissaire.store.StoreHandlerManager
     :param run_once: If only one run should occur.
     :type run_once: bool
     """
@@ -80,8 +82,7 @@ def watcher(queue, store_manager, run_once=False):
                         try:
                             cluster_type = util.cluster_for_host(
                                 host.address, store_manager).type
-                        except Exception as ex:
-                            logger.info('{} {}'.format(type(ex), ex))
+                        except Exception:
                             logger.debug(
                                 '{0} has no cluster type. Assuming {1}'.format(
                                     host.address, C.CLUSTER_TYPE_HOST))

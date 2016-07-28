@@ -133,7 +133,7 @@ class IterableModelQueue(MPQueue):
                 except TypeError:
                     # Not a class
                     pass
-        raise Exception('No model in {}'.format(item))
+        raise Exception('No model in {0}'.format(item))
 
 
 INVESTIGATE_QUEUE = MPQueue()
