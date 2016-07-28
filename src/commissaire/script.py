@@ -419,7 +419,7 @@ def main():  # pragma: no cover
 
     # Add our plugins
     InvestigatorPlugin(cherrypy.engine, config).subscribe()
-    WatcherPlugin(cherrypy.engine, config, store_manager.clone()).subscribe()
+    WatcherPlugin(cherrypy.engine, store_manager.clone()).subscribe()
 
     store_plugin.subscribe()
 

@@ -27,14 +27,14 @@ from commissaire.jobs.watcher import watcher
 
 class WatcherPlugin(plugins.SimplePlugin):
 
-    def __init__(self, bus, config, store_manager):
+    def __init__(self, bus, store_manager):
         """
         Creates a new instance of the WatcherPlugin.
 
         :param bus: The CherryPy bus.
         :type bus: cherrypy.process.wspbus.Bus
-        :param config: Configuration information.
-        :type config: commissaire.config.Config
+        :param store_manager: Proxy object for remtote stores
+        :type store_manager: commissaire.store.StoreHandlerManager
         """
         plugins.SimplePlugin.__init__(self, bus)
         # multiprocessing.Process() uses fork() to execute the target
