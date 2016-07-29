@@ -205,11 +205,6 @@ def parse_args(parser):
         '--listen-port', '-p', type=int, default=8000,
         help='Port to listen on')
     parser.add_argument(
-        '--kube-uri', '-k', type=str,
-        help=('Full URI for kubernetes. This value is used for both local and'
-              ' remote host node connection to kubernetes.'
-              ' EX: http://192.168.152.101:8080'))
-    parser.add_argument(
         '--tls-keyfile', type=str,
         help='Full path to the TLS keyfile for the commissaire server')
     parser.add_argument(
@@ -241,16 +236,6 @@ def parse_args(parser):
     args = parser.parse_args()
     namespace = _read_config_file(args.config_file)
     args = parser.parse_args(namespace=namespace)
-
-    # Make sure required arguments are present.
-    required_args = ('kube_uri',)
-    missing_args = []
-    for name in required_args:
-        if getattr(args, name) is None:
-            missing_args.append(name.replace('_', '-'))
-    if missing_args:
-        parser.error('Missing required arguments: {0}'.format(
-            ', '.join(missing_args)))
 
     return args
 
@@ -313,7 +298,6 @@ def main():  # pragma: no cover
 
     try:
         args = parse_args(parser)
-        config.kubernetes['uri'] = parse_uri(args.kube_uri, 'kube')
     except Exception:
         _, ex, _ = exception.raise_if_not(Exception)
         parser.error(ex)
