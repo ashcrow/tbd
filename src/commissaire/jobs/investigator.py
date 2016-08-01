@@ -106,7 +106,7 @@ def investigator(queue, run_once=False):
         oscmd = get_oscmd(host.os)
         try:
             result, facts = transport.bootstrap(
-                address, key_file, store_manager, oscmd)
+                address, key.path, store_manager, oscmd)
             host.status = 'inactive'
             store_manager.save(host)
         except:

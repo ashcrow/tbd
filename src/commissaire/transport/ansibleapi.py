@@ -32,6 +32,8 @@ from ansible.utils.display import Display
 
 from commissaire import constants as C
 from commissaire.handlers import util
+from commissaire.store.etcdstorehandler import EtcdStoreHandler
+from commissaire.store.kubestorehandler import KubernetesStoreHandler
 
 
 class LogForward(default.CallbackModule):
