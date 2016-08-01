@@ -98,8 +98,18 @@ class StoreHandlerManager(object):
                 container_manager_class = getattr(
                     handler_type, 'container_manager_class')
                 if container_manager_class:
-                    container_manager = container_manager_class(config)
-                    self._container_managers.append(container_manager)
+                    # XXX Limit one container manager for now.
+                    if not self._container_managers:
+                        container_manager = container_manager_class(config)
+                        self._container_managers.append(container_manager)
+                    else:
+                        logger = self._get_logger()
+                        logger.warn(
+                            'A container manager is already established, '
+                            'skipping {0} as configured for store handler '
+                            '"{1}"'.format(
+                                container_manager_class.__name__,
+                                handler_type.__name__))
 
         if cluster_type:
             result = [x for x in self._container_managers
