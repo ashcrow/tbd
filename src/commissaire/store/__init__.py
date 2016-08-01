@@ -41,8 +41,13 @@ class StoreHandlerBase:
         Examines the configuration parameters for a particular class of
         store handler and throws a ConfigurationError if any parameters
         are invalid.
+
+        :param config: Configuration parameters for the handler type
+        :type config: dict
+        :raises ConfigurationError: if any parameters are invalid
         """
-        pass
+        raise NotImplementedError(
+            '{0}.check_config() must be overridden.'.format(cls.__name__))
 
     def __init__(self, config):
         """
