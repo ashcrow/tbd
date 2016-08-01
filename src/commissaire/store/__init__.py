@@ -16,6 +16,12 @@
 Store implementations.
 """
 
+class ConfigurationError(Exception):
+    """
+    Exception class for user configuration errors.
+    """
+    pass
+
 
 class StoreHandlerBase:
     """
@@ -28,6 +34,15 @@ class StoreHandlerBase:
 
     # Subclasses override this, if applicable.
     container_manager_class = None
+
+    @classmethod
+    def check_config(cls, config):
+        """
+        Examines the configuration parameters for a particular class of
+        store handler and throws a ConfigurationError if any parameters
+        are invalid.
+        """
+        pass
 
     def __init__(self, config):
         """

@@ -24,6 +24,12 @@ from commissaire.store import StoreHandlerBase
 from commissaire.store.storehandlermanager import StoreHandlerManager
 
 
+# XXX MagicMock doesn't handle @classmethod correctly?
+@classmethod
+def check_config(cls, config):
+    pass
+
+
 class Test_StoreHandlerManager(TestCase):
     """
     Tests for the StoreHandlerManager class.
@@ -52,11 +58,11 @@ class Test_StoreHandlerManager(TestCase):
         # And the handlers should still be empty
         self.assertEqual({}, manager._handlers)
 
-    def test_storehandlermanager_get(self):
+    @mock.patch.object(StoreHandlerBase, 'check_config')
+    def test_storehandlermanager_get(self, StoreHandlerBase):
         """
         Verify the StoreHandlerManager get method works as expected.
         """
-        StoreHandlerBase = mock.MagicMock('StoreHandlerBase')
         StoreHandlerBase()._get.return_value = TestModel.new()
         manager = StoreHandlerManager()
         manager.register_store_handler(StoreHandlerBase, {}, TestModel)
@@ -65,33 +71,33 @@ class Test_StoreHandlerManager(TestCase):
         StoreHandlerBase()._get.assert_called_once_with(model_instance)
         self.assertEqual(StoreHandlerBase()._get.return_value, result)
 
-    def test_storehandlermanager_delete(self):
+    @mock.patch.object(StoreHandlerBase, 'check_config')
+    def test_storehandlermanager_delete(self, StoreHandlerBase):
         """
         Verify the StoreHandlerManager delete method works as expected.
         """
-        StoreHandlerBase = mock.MagicMock('StoreHandlerBase')
         manager = StoreHandlerManager()
         manager.register_store_handler(StoreHandlerBase, {}, TestModel)
         model_instance = TestModel.new()
         manager.delete(model_instance)
         StoreHandlerBase()._delete.assert_called_once_with(model_instance)
 
-    def test_storehandlermanager_save(self):
+    @mock.patch.object(StoreHandlerBase, 'check_config')
+    def test_storehandlermanager_save(self, StoreHandlerBase):
         """
         Verify the StoreHandlerManager save method works as expected.
         """
-        StoreHandlerBase = mock.MagicMock('StoreHandlerBase')
         manager = StoreHandlerManager()
         manager.register_store_handler(StoreHandlerBase, {}, TestModel)
         model_instance = TestModel.new()
         manager.save(model_instance)
         StoreHandlerBase()._save.assert_called_once_with(model_instance)
 
-    def test_storehandlermanager_list(self):
+    @mock.patch.object(StoreHandlerBase, 'check_config')
+    def test_storehandlermanager_list(self, StoreHandlerBase):
         """
         Verify the StoreHandlerManager list method works as expected.
         """
-        StoreHandlerBase = mock.MagicMock('StoreHandlerBase')
         manager = StoreHandlerManager()
         manager.register_store_handler(StoreHandlerBase, {}, TestModel)
         model_instance = TestModel.new()
