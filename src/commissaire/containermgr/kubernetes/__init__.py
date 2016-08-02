@@ -36,7 +36,7 @@ class ContainerManager(ContainerManagerBase):
         :param config: Configuration details
         :type config: dict
         """
-        ContainerManagerBase.__init__(self)
+        ContainerManagerBase.__init__(self, config)
         self.scheme = config['protocol']
         self.host = config['host']
         self.port = config['port']
