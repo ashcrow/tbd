@@ -193,7 +193,6 @@ def parse_args(parser):
     """
     # Do not use required=True because it would preclude such
     # arguments from being specified in a configuration file.
-    # Instead we manually check for required arguments below.
     parser.add_argument(
         '--config-file', '-c', type=str,
         help='Full path to a JSON configuration file '
