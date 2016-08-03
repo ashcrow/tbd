@@ -16,6 +16,7 @@
 Store implementations.
 """
 
+
 class ConfigurationError(Exception):
     """
     Exception class for user configuration errors.

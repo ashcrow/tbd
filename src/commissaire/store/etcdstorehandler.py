@@ -47,7 +47,7 @@ class EtcdStoreHandler(StoreHandlerBase):
         and throws a ConfigurationError if any parameters are invalid.
         """
         if (bool(config.get('certificate-path')) ^
-            bool(config.get('certificate-key-path'))):
+                bool(config.get('certificate-key-path'))):
             raise ConfigurationError(
                 'Both "certificate_path" and "certificate_key_path" '
                 'must be provided to use a client side certificate')
