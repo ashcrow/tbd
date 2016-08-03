@@ -23,7 +23,6 @@ import sys
 from time import sleep
 
 from commissaire import constants as C
-from commissaire.containermgr.kubernetes import KubeContainerManager
 from commissaire.handlers import util
 from commissaire.handlers.models import Host
 from commissaire.oscmd import get_oscmd
