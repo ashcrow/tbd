@@ -8,15 +8,11 @@ Vagrant.configure(2) do |config|
 
     # Development etcd server.
     config.vm.define "etcd" do |etcd|
-      etcd.vm.box = "fedora/24-cloud-base"
+      etcd.vm.box = "centos/atomic-host"
       etcd.vm.network "private_network", ip: "192.168.152.101"
       etcd.vm.provision "shell", inline: <<-SHELL
         echo "==> Setting hostname"
         sudo hostnamectl set-hostname etcd
-        #echo "===> Updating the system"
-        sudo dnf update --setopt=tsflags=nodocs -y
-        echo "===> Installing etcd"
-        sudo dnf install -y etcd
         echo "===> Configuring etcd"
         sudo sed -i "s/localhost/192.168.152.101/g" /etc/etcd/etcd.conf
         echo "===> Starting etcd"
@@ -32,15 +28,11 @@ Vagrant.configure(2) do |config|
     # Development Kubernetes server.
     # NOTE: This must start after etcd.
     config.vm.define "kubernetes", autostart: false do |kubernetes|
-      kubernetes.vm.box = "fedora/24-cloud-base"
+      kubernetes.vm.box = "centos/atomic-host"
       kubernetes.vm.network "private_network", ip: "192.168.152.102"
       kubernetes.vm.provision "shell", inline: <<-SHELL
         echo "==> Setting hostname"
         sudo hostnamectl set-hostname kubernetes
-        echo "===> Updating the system"
-        #sudo dnf update --setopt=tsflags=nodocs -y
-        echo "===> Installing kubernetes"
-        sudo dnf install -y kubernetes-master.x86_64
         echo "===> Configuring kubernetes"
         sudo sed -i "s|insecure-bind-address=127.0.0.1|insecure-bind-address=192.168.152.102|g" /etc/kubernetes/apiserver
         sudo sed -i "s|etcd-servers=http://127.0.0.1:2379|etcd-servers=http://192.168.152.101:2379|g" /etc/kubernetes/apiserver
@@ -53,32 +45,14 @@ Vagrant.configure(2) do |config|
 
 
     # Development Node 1
-    config.vm.define "fedora-cloud" do |node|
-      node.vm.box = "fedora/24-cloud-base"
+    config.vm.define "node00" do |node|
+      node.vm.box = "centos/atomic-host"
       node.vm.network "private_network", ip: "192.168.152.110"
       node.vm.provision "shell", inline: <<-SHELL
         echo "==> Setting hostname"
         sudo hostnamectl set-hostname fedora-cloud
-        echo "===> Updating the system"
-        sudo dnf update --setopt=tsflags=nodocs -y
-        echo "===> Installing OS dependencies"
-        sudo dnf install -y python
       SHELL
     # End etcd
-    end
-
-    # Development Node 1
-    config.vm.define "fedora-atomic" do |node|
-      node.vm.box = "fedora/23-atomic-host"
-      node.vm.network "private_network", ip: "192.168.152.111"
-      node.vm.provision "shell", inline: <<-SHELL
-        echo "==> Setting hostname"
-        sudo hostnamectl set-hostname fedora-atomic
-        echo "===> Updating the system"
-        sudo atomic host upgrade
-        sudo systemctl reboot
-      SHELL
-    # End node2
     end
 
   # Development commissaire server
