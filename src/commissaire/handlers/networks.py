@@ -21,8 +21,10 @@ import json
 import cherrypy
 import falcon
 
+from commissaire import constants as C
 from commissaire.resource import Resource
 from commissaire.handlers.models import Network, Networks
+from commissaire.store.etcdstorehandler import EtcdStoreHandler
 
 
 class NetworksResource(Resource):
@@ -105,6 +107,22 @@ class NetworkResource(Resource):
             return
 
         store_manager = cherrypy.engine.publish('get-store-manager')[0]
+        # If the type is flannel_etcd yet we have not etcd backend configured
+        # don't create and notify the caller
+        if network_type == C.NETWORK_TYPE_FLANNEL_ETCD:
+            backend_found = False
+            for handler_type, _, _ in store_manager.list_store_handlers():
+                if handler_type is EtcdStoreHandler:
+                    backend_found = True
+                    break
+
+            if not backend_found:
+                self.logger.info(
+                    'Network {0} can not be created as type flannel_etcd '
+                    'as no etcd backend is configured.'.format(name))
+                resp.status = falcon.HTTP_CONFLICT
+                return
+
         network = Network.new(name=name, type=network_type, options=options)
         self.logger.debug('Saving network: {0}'.format(network.to_json()))
         store_manager.save(network)

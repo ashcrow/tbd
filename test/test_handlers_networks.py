@@ -28,6 +28,7 @@ from mock import MagicMock
 from commissaire.handlers import networks
 from commissaire.middleware import JSONify
 from commissaire.store.storehandlermanager import StoreHandlerManager
+from commissaire.store.etcdstorehandler import EtcdStoreHandler
 
 
 class Test_Networks(TestCase):
@@ -238,6 +239,8 @@ class Test_NetworkResource(TestCase):
             manager = mock.MagicMock(StoreHandlerManager)
             _publish.return_value = [manager]
 
+            manager.list_store_handlers.return_value = [[
+                EtcdStoreHandler, None, None]]
             test_network = networks.Network.new(name='default')
             # Verify with creation
             manager.get.side_effect = (
@@ -266,6 +269,14 @@ class Test_NetworkResource(TestCase):
             self.assertEquals('default', result['name'])
             self.assertEquals('flannel_etcd', result['type'])
             self.assertEquals({}, result['options'])
+
+            # Verify failure with flannel_etcd is requests but there is no
+            # etcd backend
+            manager.list_store_handlers.return_value = []
+            body = self.simulate_request(
+                '/api/v0/network/default', method='PUT', body=test_body)
+            self.assertEquals(falcon.HTTP_409, self.srmock.status)
+
 
     def test_network_delete(self):
         """
