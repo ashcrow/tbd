@@ -127,7 +127,7 @@ class InvestigatorPlugin(plugins.SimplePlugin):
                              StoreHandlerManager
         :param host: A Host model representing the host to investigate.
         :type host: commissaire.handlers.models.Host
-        :param cluster: The type of cluster the host is to be added to
+        :param cluster: Cluster model instance the host is to be added to
         :type cluster: commissaire.handlers.models.Cluster or None
         :param callback: A callable to invoke when the request is complete.
         :type callback: callable or None
