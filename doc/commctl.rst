@@ -241,6 +241,13 @@ create
 
    $ commctl host create --cluster my_cluster 192.168.152.110 /path/to/host/priv/ssh_key
 
+.. note::
+
+    When creating a new host record the host will need to have an ssh key already generated
+    and available for commissaire. The host also will need to have ssh running and the ``python``
+    command must be available. If you want to bootstrap new hosts please see our :ref:`cloud_init`
+    documentation.
+
 
 delete
 ``````
