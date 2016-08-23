@@ -30,8 +30,8 @@ Via Docker
 Via RPM
 ~~~~~~~
 
-If you want to roll your own RPM the spec file can be found in ``contrib/package/rpm/commissaire.spec``.
-On RHEL/CentOS/Fedora based systems you will also need to make sure to have an rpm build environment set up.
+If you want to roll your own RPM, the spec file can be found in ``contrib/package/rpm/commissaire.spec``.
+On RHEL/CentOS/Fedora based systems you will also need to make sure to have an RPM build environment set up.
 This includes packages such as:
 
 * rpm-build
@@ -46,7 +46,12 @@ Configuration
 ``~/.commissaire.json`` though it can be changed with the ``--config``/``-c``
 option.
 
+
 .. include:: examples/commctl_config.rst
+
+.. note::
+
+    At least one endpoint must be defined!
 
 The password may be stored in the configuration file as well.
 
@@ -65,8 +70,8 @@ If you are using the :ref:`Kubernetes authentication plugin <kubeauth>` you can 
 
 .. include:: examples/commctl_config_with_kubeconfig.rst
 
-Multiple endpoints may be specified. If the first endpoint is unreachable
-the next endpoint in the list is used.
+Multiple fallback endpoints may be specified as a list. The endpoints are
+tried in order until a successful connection is made.
 
 .. include:: examples/commctl_config_multihost.rst
 
@@ -133,18 +138,11 @@ To list all clusters:
 
 .. include:: examples/commctl_list_clusters.rst
 
-To list all hosts:
-
-.. include:: examples/commctl_list_hosts.rst
-
-To list all hosts in a specific cluster:
-
-.. include:: examples/commctl_list_hosts_in_cluster.rst
-
 deploy start
 ````````````
 
-``deploy start`` will create a new deployment on an Atomic host.
+``deploy start`` will create a new deployment on an Atomic host. This is an
+asynchronous action. See :ref:`deploy_status` on checking the results.
 
 ``deploy start`` requires two positional arguments:
 
@@ -156,6 +154,8 @@ deploy start
 
    $ commctl cluster deploy start mycluster 7.4.1
 
+
+.. _deploy_status:
 
 deploy status
 `````````````
@@ -174,7 +174,8 @@ deploy status
 restart start
 `````````````
 
-``restart start`` will create a new restart roll on a cluster of hosts
+``restart start`` will create a new restart roll on a cluster of hosts. This is an
+asynchronous action. See :ref:`restart_status` on checking the results.
 
 ``restart start`` requires one positional argument:
 
@@ -183,6 +184,8 @@ restart start
 
 .. include:: examples/commctl_create_restart.rst
 
+
+.. _restart_status:
 
 restart status
 ``````````````
@@ -196,11 +199,11 @@ restart status
 .. include:: examples/commctl_get_restart.rst
 
 
-
 upgrade start
 `````````````
 
-``upgrade start`` will create a new upgrade on a cluster of hosts
+``upgrade start`` will create a new upgrade on a cluster of hosts. This is an
+asynchronous action. See :ref:`upgrade_status` on checking the results.
 
 ``upgrade start`` requires one positional argument:
 
@@ -210,8 +213,11 @@ upgrade start
 
 
 
+.. _upgrade_status:
+
 upgrade status
 ``````````````
+
 ``upgrade status`` will retrieve the status of an upgrade
 
 ``upgrade status`` requires one positional argument:
@@ -281,9 +287,9 @@ list
 ````
 ``list`` will provide a list of all configured hosts.
 
-.. code-block:: shell
+To list all hosts:
 
-   $ commctl host list
+.. include:: examples/commctl_list_hosts.rst
 
 
 status
@@ -379,9 +385,9 @@ list
 
 ``list`` will provide a list of all configured networks.
 
-.. code-block:: shell
+To list all hosts in a specific cluster:
 
-   $ commctl network list
+.. include:: examples/commctl_list_hosts_in_cluster.rst
 
 
 
