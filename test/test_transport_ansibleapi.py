@@ -150,13 +150,13 @@ class Test_Transport(TestCase):
 
             # Check user-config to playbook-variable translation.
             etcd_config = {
-                'server_url': 'https://1.1.1.1:1234',
+                'server_url': 'https://192.168.1.1:1234',
                 'certificate_ca_path': '/path/to/etcd/ca/cert',
                 'certificate_path': '/path/to/etcd/client/cert',
                 'certificate_key_path': '/path/to/etcd/client/key'
             }
             kube_config = {
-                'server_url': 'https://2.2.2.2:4567',
+                'server_url': 'https://192.168.2.2:4567',
                 'certificate_path': '/path/to/kube/client/cert',
                 'certificate_key_path': '/path/to/kube/client/key'
             }
@@ -181,7 +181,7 @@ class Test_Transport(TestCase):
             play_vars = transport._run.call_args[0][4]
             self.assertEqual(
                 play_vars['commissaire_etcd_server_url'],
-                'https://1.1.1.1:1234')
+                'https://192.168.1.1:1234')
             self.assertEqual(
                 play_vars['commissaire_etcd_ca_path_local'],
                 '/path/to/etcd/ca/cert')
