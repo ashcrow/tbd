@@ -4,7 +4,7 @@ Operations
 Preface
 -------
 All operations via commissaire are done via REST. While any HTTP client can
-be used this many users will feel more comfortable using :ref:`commctl <commctl_preface>`.
+be used, many users will feel more comfortable using :ref:`commctl <commctl_preface>`.
 
 
 
