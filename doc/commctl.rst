@@ -82,6 +82,10 @@ Commands
 cluster
 ~~~~~~~
 
+.. note::
+
+    For API versions of these commands see the :ref:`Cluster API<cluster_op>`
+
 create
 ``````
 
@@ -230,6 +234,9 @@ upgrade status
 
 host
 ~~~~
+.. note::
+
+    For API versions of these commands see the :ref:`Host API<host_op>`
 
 create
 ``````
@@ -309,6 +316,12 @@ status
 
 ssh
 ```
+
+.. note::
+
+    For the api used for this commands see the :ref:`Host Creds API<host_creds_op>`
+
+
 ``commctl`` provides a simple way to connect to your host node by pulling down
 the ``ssh_priv_key`` and ``remote_user`` from the server. The ``ssh_priv_key`` is
 stored temporarily and is removed upon the completion of the connection.
@@ -333,6 +346,11 @@ To connect to a host node with extra ssh parameters:
 
 network
 ~~~~~~~
+
+.. note::
+
+    For API versions of these commands see the :ref:`Network API<network_op>`
+
 
 create
 ``````
