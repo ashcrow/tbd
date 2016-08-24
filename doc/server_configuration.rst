@@ -159,20 +159,9 @@ member.  Other members are specific to the storage handler.
   glob-style wildcards "*" and "?".  This defaults to ``['*']``, which
   assigns all available data models to a single storage handler.
 
-  The data models generally correspond to
-  :ref:`REST endpoints <rest_endpoints>`.  Available model names are:
-
-    * ``Cluster``
-    * ``Clusters``
-    * ``ClusterDeploy``
-    * ``ClusterRestart``
-    * ``ClusterUpgrade``
-    * ``Host``
-    * ``Hosts``
-    * ``HostStatus``
-    * ``Network``
-    * ``Networks``
-    * ``Status``
+  See the :ref:`REST endpoints <rest_endpoints>` section for a complete
+  list of model names.  Typical wildcard patterns for models include
+  ``"Host*"`` and ``"Cluster*"``.
 
 .. note::
 
