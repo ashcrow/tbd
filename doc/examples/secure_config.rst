@@ -9,14 +9,14 @@
      "register-store-handler": [
        {
          "name": "commissaire.store.kubestorehandler",
-         "server_url": "http://192.168.152.101:8080",
+         "server_url": "https://192.168.152.101:8080",
          "certificate_path": "/path/to/kube_clientside.crt",
          "certificate_key_path": "/path/to/kube_clientside.key",
          "models": ["*"]
        },
        {
          "name": "commissaire.store.etcdstorehandler",
-         "server_url": "http://192.168.152.100:2379",
+         "server_url": "https://192.168.152.100:2379",
          "certificate_path": "/path/to/etcd_clientside.crt",
          "certificate_key_path": "/path/to/etcd_clientside.key",
          "models": []
