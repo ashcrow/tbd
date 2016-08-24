@@ -173,7 +173,7 @@ Example
 
    {
        "status": "in_process",
-       "version": 7.2.6,
+       "version": "7.2.6",
        "deployed": [{...}],
        "in_process": [{...}],
        "started_at": "2015-12-17T15:48:18.710454",
