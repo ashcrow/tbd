@@ -70,7 +70,8 @@ using a specific configuration structure:
        }...
    }
 
-The ``commctl`` program has a built-in command for creating bcrypt hashes.
+The ``commctl`` program has a :ref:`built-in command for creating bcrypt
+hashes <commctl_passhash>`.
 
 ``filepath``
 
