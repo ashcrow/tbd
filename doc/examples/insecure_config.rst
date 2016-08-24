@@ -8,16 +8,12 @@
      "register-store-handler": [
        {
          "name": "commissaire.store.kubestorehandler",
-         "protocol": "http",
-         "host": "192.168.152.102",
-         "port": 8080,
+         "server_url": "http://192.168.152.102:8080",
          "models": ["*"]
        },
        {
          "name": "commissaire.store.etcdstorehandler",
-         "protocol": "http",
-         "host": "192.168.152.101",
-         "port": 2379,
+         "server_url": "http://192.168.152.101:2379",
          "models": []
        }
      ],
