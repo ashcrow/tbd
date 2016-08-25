@@ -119,7 +119,7 @@ def investigator(request_queue, response_queue, run_once=False):
         logger.debug('Attempting to register with relevant container '
                      'managers: cluster_data={0}'.format(cluster_data))
         for con_mgr in store_manager.list_container_managers(
-                cluster_data.get('type', [])):
+                cluster_data.get('type', '')):
             try:
                 logger.debug('Trying to register with {0}...'.format(
                     con_mgr.__class__.__name__))
