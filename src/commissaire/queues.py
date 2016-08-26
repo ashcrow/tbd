@@ -85,6 +85,7 @@ class IterableModelQueue:
                 item = item[0]
             if obj_model.primary_key == item.primary_key:
                 self._queue.pop(x)
+                return
 
     def put(self, obj, *args, **kwargs):
         """
