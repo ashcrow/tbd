@@ -238,6 +238,7 @@ class HostResource(Resource):
             # Don't treat it as a skeletal host record.
             req_data = req.stream.read()
             req_body = json.loads(req_data.decode())
+            req_body['address'] = address
             ssh_priv_key = req_body['ssh_priv_key']
             # Remote user is optional.
             remote_user = req_body.get('remote_user', 'root')
