@@ -1,4 +1,4 @@
 .. code-block:: shell
 
-   commctl cluster upgrade status datacenter1
+   commctl get upgrade datacenter1
    ...

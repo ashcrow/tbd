@@ -1,4 +1,4 @@
 .. code-block:: shell
 
-   commctl cluster upgrade start datacenter1 7.2.2
+   commctl start upgrade datacenter1 7.2.2
    ...
